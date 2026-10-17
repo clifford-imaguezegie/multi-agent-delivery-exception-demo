@@ -12,3 +12,12 @@ __pycache__/
 *.sqlite3
 *.ipynb
 .env.local
+
+# Locally generated releases and private source evidence
+dist/
+build/
+*.zip
+.DS_Store
+*.log
+*trace_export*
+*PRIVATE*

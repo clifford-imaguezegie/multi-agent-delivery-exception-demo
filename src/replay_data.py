@@ -2,7 +2,7 @@
 from __future__ import annotations
 import json
 from pathlib import Path
-DATA_PATH=Path(__file__).resolve().parent/'data'/'recorded_cases.json'
+DATA_PATH=Path(__file__).resolve().parents[1]/'data'/'recorded_cases.json'
 
 def load_data(path:Path=DATA_PATH)->dict:
     data=json.loads(Path(path).read_text(encoding='utf8'))

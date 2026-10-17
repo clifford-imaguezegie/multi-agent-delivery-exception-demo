@@ -105,4 +105,38 @@ hr {border-color:var(--line);}
 .release-main strong {font-size:1rem;color:#321D3C;}
 .release-trace {font-size:.7rem;color:#796674;letter-spacing:.01em;}
 @media(max-width:700px){.footer-note{grid-template-columns:1fr;gap:13px}.release-tag{justify-self:start;}}
+
+/* V2.4.0: operations-first value proposition on The challenge workspace. */
+.value-lead {background:#F7EDE6;border:1px solid #EAD5C9;border-radius:21px;padding:22px 25px;margin:10px 0 17px;display:grid;grid-template-columns:1fr .93fr;gap:29px;align-items:center;}
+.value-eyebrow {display:block;color:#96594F;font-size:.68rem;font-weight:850;letter-spacing:.14em;margin-bottom:7px;}
+.value-lead-copy p {color:#463647;font-size:.97rem;line-height:1.66;margin:0;}
+.value-bridge {display:flex;align-items:center;gap:9px;background:#FFF9F2;border:1px solid #E6D7CC;border-radius:14px;padding:16px;}
+.value-bridge > div {flex:1;min-width:0;}
+.value-bridge small {display:block;color:#A04F43;font-weight:850;font-size:.64rem;letter-spacing:.14em;margin-bottom:7px;}
+.value-bridge strong {font-size:.82rem;line-height:1.42;display:block;color:#37233D;}
+.value-bridge-arrow {color:#D76449;font-size:1.55rem;font-weight:700;align-self:center;flex:none;}
+.value-grid {display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:15px;margin:12px 0 20px;}
+.value-card {grid-column:span 2;display:flex;flex-direction:column;min-width:0;min-height:247px;padding:22px 21px 0;background:white;border:1px solid var(--line);border-radius:18px;overflow:hidden;border-top:4px solid #ED6848;box-shadow:0 2px 8px rgba(41,29,45,.025);}
+.value-card:nth-child(2) {border-top-color:#AD7CB1;background:#FFFCFF;}
+.value-card:nth-child(3) {border-top-color:#E5AC58;}
+.value-card:nth-child(4) {grid-column:span 3;border-top-color:#766086;background:#FFFCFF;}
+.value-card:nth-child(5) {grid-column:span 3;border-top-color:#DE8E6B;}
+.value-card-top {display:flex;align-items:center;gap:10px;justify-content:space-between;}
+.value-num {display:inline-grid;place-items:center;background:#FCE8DF;color:#9A4A3A;border-radius:10px;width:35px;height:35px;font-size:.78rem;font-weight:850;}
+.value-card:nth-child(2) .value-num,.value-card:nth-child(4) .value-num{background:#F2EBF3;color:#654668;}
+.value-category {text-align:right;color:#8C7284;font-size:.64rem;line-height:1.4;letter-spacing:.105em;font-weight:800;}
+.value-card h3 {font-family:Georgia,'Times New Roman',serif;font-size:1.27rem;font-weight:400;line-height:1.2;margin:17px 0 9px;color:#34203C;letter-spacing:-.027em;}
+.value-card .value-mechanism {font-size:.86rem;color:#5F5362;line-height:1.6;margin:0 0 17px;flex-grow:1;}
+.value-impact {background:#FAF2EC;margin:0 -21px;padding:15px 21px 18px;border-top:1px solid #F0E2D8;}
+.value-card:nth-child(2) .value-impact,.value-card:nth-child(4) .value-impact{background:#F6F1F8;border-top-color:#EDE2F0;}
+.value-impact span {font-size:.64rem;color:#965646;letter-spacing:.12em;font-weight:850;display:block;margin-bottom:6px;}
+.value-impact p {font-size:.84rem;line-height:1.5;color:#4D3D4B;margin:0;font-weight:650;}
+.value-proof {background:#38223F;color:#FAF1EC;border-radius:19px;padding:22px 25px;display:grid;grid-template-columns:1fr 1fr;gap:13px 24px;margin:5px 0 30px;}
+.value-proof-stat {display:flex;align-items:center;gap:14px;}
+.value-proof-stat strong {font-size:2rem;letter-spacing:-.045em;white-space:nowrap;color:#FFD0A6;}
+.value-proof-stat span {font-size:.81rem;line-height:1.45;color:#EBDDDF;}
+.value-proof-disclaimer {grid-column:span 2;border-top:1px solid #6B566E;padding-top:15px;color:#EBDDDF;font-size:.81rem;line-height:1.58;}
+.value-proof-disclaimer b {color:#FFF6ED;}
+@media(max-width:1000px){.value-lead{grid-template-columns:1fr;gap:14px}.value-card{grid-column:span 3}.value-card:nth-child(4),.value-card:nth-child(5){grid-column:span 3}}
+@media(max-width:650px){.value-grid{grid-template-columns:1fr}.value-card,.value-card:nth-child(4),.value-card:nth-child(5){grid-column:span 1;min-height:0}.value-proof{grid-template-columns:1fr}.value-proof-disclaimer{grid-column:span 1}.value-lead{padding:19px 17px}.value-bridge{padding:12px}.value-proof{padding:20px 17px}}
 </style>

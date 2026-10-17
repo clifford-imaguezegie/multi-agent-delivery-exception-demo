@@ -5,7 +5,7 @@ LLM/tool calls, and a separate full trajectory preserves the original event orde
 """
 from __future__ import annotations
 
-from oversight_status import oversight_status
+from .oversight_status import oversight_status
 
 
 def story_scenes(case: dict) -> list[dict]:

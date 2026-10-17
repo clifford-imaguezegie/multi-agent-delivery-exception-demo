@@ -6,8 +6,8 @@ recorded start/end timestamps; animation pace is illustrative.
 from __future__ import annotations
 import json
 from html import escape
-from decision_package import decision_package
-from review_evidence import review_annotations
+from .decision_package import decision_package
+from .review_evidence import review_annotations
 
 NODE_BY_PREFIX = {
     "preprocessor": "preprocessor",

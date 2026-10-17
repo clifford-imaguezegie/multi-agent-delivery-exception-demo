@@ -1,69 +1,127 @@
-# Exception / Control — Delivery Exception Multi-Agent AI
+# Exception / Control
+### Multi-Agent AI for Last-Mile Delivery Exception Management
 
-**Public replay v2.3.4 | 17 October 2026 captured executions**
+A read-only, interactive Streamlit demonstration of an implemented and evaluated **multi-agent delivery-exception workflow**. It shows how specialised AI agents can turn fragmented delivery events into **reviewed, decision-ready action packages**, with separate customer communication and human-escalation decisions.
 
-An interactive, read-only Streamlit portfolio demonstration of a previously executed multi-agent workflow for parcel-delivery exceptions. The demo displays **recorded** LangSmith events and the corresponding **executed notebook's** benchmark assessments. It makes no LLM calls and cannot change shipment state or send customer messages.
+> **Public demonstration:** This website replays recorded LangSmith executions from an earlier notebook run. It does **not** run live models, contact customers, modify shipments or connect to a logistics production system.
 
-## What changed in v2.3.4
+![Operational Value — five outcome areas](docs/images/operational-value.png)
 
-The application **retains exactly the same six workspaces, design, navigation and architecture** as v2.3.3. Only the run-specific data, descriptions, result evidence, playback reading speed, and release identifier have been refreshed.
+## The operational challenge
 
-- Imported all ten scenarios from `delivery_exception_all_langsmith_traces_PRIVATE (3).zip`, with final decisions from recorded `finalize` stages, intermediate Critic rationales, proposal/draft revisions, tool names, measured stage durations and start offsets. The **raw/private archive is not shipped**.
-- Linked the current notebook's *individual assessment outputs* to their matching shipment IDs, cross-checking notebook revision counts and latencies with this trace batch. All ten scenarios have passing applicable benchmark checks. LLM-as-a-Judge coherence: 5/5 for eight cases, **3/5 for SHP-004**, and **2/5 for SHP-005** (mean 4.5/5). These are curated proof-of-concept assessments, not independently verified production outcomes.
-- Corrected **SHP-003**: RESCHEDULE, no human escalation, Resolution Critic ACCEPT, ~14.53-second trace. **SHP-004** now has two resolution revision requests; SHP-008 has REVISE → ACCEPT; SHP-006 retains REVISE → ACCEPT. Case Stories, Agent Flow, Results, and the walkthrough's caption now agree with this batch.
-- **Quick overview remains default (6–25 seconds per event)**. Comfortable is now **30–120 seconds**, and Extra reading time **60–240 seconds** to allow detailed review. Manual, Play, Pause, Back, Next and Reset remain. Playback time is intentionally separate from actual recorded execution time.
-- The release footer identifies **v2.3.4**.
-- Two *recovered* model/structured-output validation-error spans are present in SHP-004's private trace. The final workflow and notebook test passed; the public app reports the error count without exposing the raw error payload. Do not describe the run as error-free.
+When a delivery fails, operations teams must distinguish routine scans from genuine exceptions, reconstruct shipment and customer context, consult policy, decide on a resolution, specify immediate parcel handling, prepare communications and recognise when a supervisor must intervene. These linked decisions can span several systems and teams.
 
-## Verified results for this trace batch
+**The solution's proposition:** move from scattered exception signals to a structured, explainable recommendation and a decision-ready handover. It supports human decision-making; it does not claim to replace operational authorisation.
 
-| Shipment | Recorded resolution | Supervisor escalation requested | Resolution Critic sequence | Root duration | Judge coherence |
-| --- | --- | --- | --- | ---: | ---: |
-| SHP-001 | N/A (routine) | No | No AI calls | 0.015s | 5/5 |
-| SHP-002 | RESCHEDULE | Yes | ACCEPT | 17.466s | 5/5 |
-| SHP-003 | RESCHEDULE | **No** | ACCEPT | 14.531s | 5/5 |
-| SHP-004 | REPLACE | Yes | REVISE → REVISE | 29.041s | 3/5 |
-| SHP-005 | REROUTE_TO_LOCKER | Yes | ACCEPT | 24.435s | 2/5 |
-| SHP-006 | RETURN_TO_SENDER | **No** | REVISE → ACCEPT | 49.691s | 5/5 |
-| SHP-007 | REPLACE | Yes | ACCEPT | 21.743s | 5/5 |
-| SHP-008 | RESCHEDULE | Yes | REVISE → ACCEPT | 32.800s | 5/5 |
-| SHP-009 | REPLACE | Yes | ACCEPT | 20.435s | 5/5 |
-| SHP-010 | N/A (routine) | No | No AI calls | 0.041s | 5/5 |
+## Where the value lies
 
-**Aggregate:** 446 spans, 10 completed root traces, **21.02 seconds mean across ten cases**, **26.27 seconds across eight exceptions**; six cases requested supervisor escalation, two nonroutine exceptions did not, and two routine events bypassed AI. All ten cases passed their applicable Task, Exception, Resolution, Escalation, Tone and Tools checks in the executed notebook (tone/escalation are N/A for routine cases). No customer messages or delivery actions were executed.
+| Operational capability | Potential benefit to validate in a pilot |
+| --- | --- |
+| **Faster decision preparation** — consolidate operational context and proposed action | Less manual information gathering |
+| **More consistent recommendations** — policy-grounded reasoning with Critic validation | More complete and repeatable decisions |
+| **Coordinated exception handling** — link triage, resolution, handling and communication | Fewer fragmented handoffs |
+| **Decision-ready supervisor escalation** — provide an evidence-backed recommendation | Less case reconstruction for reviewers |
+| **Customer-response preparation** — produce reviewed, context-aware drafts | Faster, clearer communication preparation |
 
-SHP-001/010 can be flagged `partial` in the **private export manifests** because the trace exporter expected agent spans for every scenario; their deterministic fast-path root traces are valid. Do not confuse export warnings with failed operational executions.
+These are **potential operational outcomes**, not measured savings. No manual-vs-AI efficiency study or production pilot is claimed.
 
-## Workspaces (unchanged)
+## How the agentic workflow works
 
-1. **The challenge:** Last-mile exception problem and measured result context.
-2. **Architecture:** Original implemented LangGraph graph, deterministic fast path, RAG, tools, specialised agents, Critics and escalation.
-3. **Case stories:** Ten guided evidence-grounded stories plus the 28-second edited SHP-006 walkthrough film (rebuilt with the current 49.69s execution label).
-4. **Agent flow:** Seven-node animated replay with original stage ordering, revised reading pace, Critic feedback and measured stage times.
-5. **Evidence room:** Per-stage proposals, objections, approved/rejected drafts, operational outcomes, tool identifiers and visibility boundaries.
-6. **Results:** Root and stage timing, final outcomes, current-run benchmark checks, Judge coherence scores and internal recovered-error disclosure.
+```mermaid
+flowchart TD
+    A[Delivery event] --> B[Deterministic triage]
+    B -->|Routine scan| Z[Final record · no LLM calls]
+    B -->|Actionable exception| O[LangGraph orchestrator]
+    O --> T[Operational tools + RAG policy context]
+    T --> R[Resolution Agent]
+    R --> C[Resolution Critic]
+    C -->|Revise| R
+    C -->|Accept / escalation decision| M[Communication Agent]
+    M --> V[Communication Critic]
+    V --> F[Finalisation and supervisor routing]
+    F --> D[Recorded decision package + unsent draft]
+```
 
-**Evidence boundary:** The LangSmith trace includes agent and tool inputs/outputs, which may contain confidential data. The bundled JSON is an allowlisted and automatically redacted extraction. Policy passages, raw spans and customer databases are not published. Human review remains necessary before making the source repository public.
+The original project combines deterministic preprocessing, operational lookups, policy retrieval, specialist Resolution and Communication Agents, independent Critic assessments, bounded revision loops and escalation safeguards. **Critic acceptance is not human approval.** The public app exposes the recorded outcomes without executing the original workflow.
 
-## Deploy
+## What visitors can explore
 
-Tested structurally on Python 3.13; Python 3.10+ is supported by the declared packages, subject to normal Streamlit compatibility. From the repository root:
+The app preserves six workspaces:
+
+1. **The challenge:** real operational friction, five value propositions and benchmark context.
+2. **Architecture:** the implemented orchestration, agents, deterministic fast path, tools and validation loops.
+3. **Case stories:** guided explanations of ten recorded delivery events and a captioned example walkthrough.
+4. **Agent flow:** animated handoffs and return loops, with captured Critic objections, revised proposals and stage durations.
+5. **Evidence room:** recorded proposals, Critic reviews, unsent customer drafts and oversight decisions.
+6. **Results:** benchmark checks, model-assessed reasoning coherence, measured trace durations and known limitations.
+
+**Suggested first demonstration:** Compare **SHP-006** (Critic feedback improves an operational handling instruction without a supervisor escalation) with **SHP-004** (two Critic revisions, an unresolved policy/customer-choice concern and escalation). See **SHP-003** for a correctly resolved reschedule without escalation.
+
+## Recorded proof-of-concept evidence
+
+| Measure | Captured result |
+| --- | ---: |
+| Curated scenarios | 10 |
+| Genuine exception scenarios | 8 |
+| Mean end-to-end time across exceptions | **26.27 seconds** |
+| Mean time across all ten scenarios | **21.02 seconds** |
+| LangSmith spans | **446** |
+| Applicable notebook benchmark checks | **10/10 scenarios passed** |
+| Model-as-Judge coherence | Eight scores of 5/5, one 3/5, one 2/5 |
+
+Two routine events bypassed AI processing. Six cases requested supervisor escalation, while two genuine exceptions did not. These results come from a small, deliberately selected benchmark and **do not establish production reliability, operational cost savings, or an improvement over manual handling**. The app also acknowledges two recovered internal validation-error spans in the SHP-004 trace; the completed case passed its notebook assessment.
+
+## Run locally or deploy to Streamlit Cloud
+
+**Requirements:** Python 3.10+ and the packages in `requirements.txt`.
 
 ```bash
 python -m pip install -r requirements.txt
 streamlit run app.py
 ```
 
-No API key or server API is required. `app.py` is the Streamlit entry point. The package includes `app.py`, supporting `.py` modules, `.streamlit/config.toml`, `data/recorded_cases.json` and `assets/shp006_story.mp4`. This build has offline automated validation; **a live deployed Streamlit browser check is still required**.
+For **Streamlit Community Cloud**, select this repository, the `main` branch, and `app.py` as the entry point. No model provider key, backend service or REST API is required for this recorded-replay application.
 
-Run offline tests with:
+Run the offline checks with:
 
 ```bash
+python -m pip install pytest
 python -m pytest -q
 ```
 
-The demo must not be mistaken for a deployed logistics control system. Its latency cannot establish savings versus manual operation, and Judge coherence is not a substitute for operational correctness or independent human review. Critic ACCEPT is not supervisor approval.
+### Repository layout
 
-## Private authoring workflow
+```text
+.
+├── app.py                  # Streamlit entry point
+├── requirements.txt        # Minimal runtime dependencies
+├── src/                    # Replay, storyline, decision and evidence helpers
+├── data/                   # Anonymised, allowlisted recorded scenarios
+├── assets/                 # Stylesheet and recorded walkthrough video
+├── docs/                   # Publication checklist and screenshot
+├── scripts/                # Optional offline authoring tools; not run by the app
+├── tests/                  # Offline consistency and data-integrity checks
+└── .streamlit/config.toml  # Streamlit visual configuration
+```
 
-The bundled `scripts/build_public_trace_replay.py` is an *offline* trace extraction utility and is not called by Streamlit. The app's JSON also contains allowlisted notebook benchmark outputs verified against this same trace batch. To regenerate the published JSON from private source materials, rebuild it in a **private working directory**, reconcile with the executed notebook assessments, run the regression suite and complete the `PUBLICATION_CHECKLIST.md` before publishing. Never upload private LangSmith archives, the original notebook, databases, internal playbooks, API credentials, or raw evaluation dumps to GitHub.
+### Public-data and operational boundaries
+
+- The included scenario JSON was allowlisted and automatically redacted. **Human privacy and internal-policy review is required before public publication.** See [the publication checklist](docs/PUBLICATION_CHECKLIST.md).
+- The repository must **never** include private LangSmith trace archives, credentials, customer databases, original notebooks or restricted policy/playbook documents.
+- The replay does not perform live inference, approve operational decisions, send customer messages, update deliveries or notify a supervisor.
+- Captured timings reflect the original execution; the animation intentionally plays more slowly so humans can read it.
+
+---
+
+## Version and release history
+
+**Current application:** `v2.4.0` · **Trace batch:** 17 October 2026.
+
+| Release | Summary |
+| --- | --- |
+| **v2.4.0** | Added five-card Operational Value presentation; all recorded evidence and decisions unchanged from v2.3.4. |
+| **v2.3.4** | Refreshed the ten scenarios, validated notebook assessment results, and adjusted human-readable playback. |
+| **v2.3.x** | Introduced detailed LangSmith Critic feedback, Agent Flow, clearer escalation distinctions and footer versioning. |
+| **v2.0–v2.2** | Established distinct visual presentation, guided stories, architecture and trace-informed replay. |
+
+The reorganised GitHub folder layout changes **packaging only**, not the application's version, logic or recorded outcomes.

@@ -2,10 +2,10 @@ from pathlib import Path
 import sys
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
-from replay_data import load_data,evaluation_rows
-from oversight_status import oversight_status
-from storyline import story_scenes
-from decision_package import decision_package
+from src.replay_data import load_data,evaluation_rows
+from src.oversight_status import oversight_status
+from src.storyline import story_scenes
+from src.decision_package import decision_package
 
 CASES={c['id']:c for c in load_data()['cases']}
 

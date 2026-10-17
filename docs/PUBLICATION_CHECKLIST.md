@@ -1,3 +1,10 @@
+# Release V2.4.0 — operational value presentation update
+
+- [ ] On **The challenge**, confirm five distinct Operational Value cards are visible and readable on desktop and mobile.
+- [ ] Confirm the proof-of-concept evidence ribbon uses 26.27s (eight exception scenarios) and 10/10 applicable benchmark cases, **without claiming manual labour savings**.
+- [ ] Verify the six existing workspaces and architecture remain unchanged and the footer displays **v2.4.0**.
+- [ ] Confirm no customer actions or live model inference are implied; business gains are proposed for pilot validation.
+
 # V2.3.4 — Public demonstration acceptance checklist
 
 This is an **automatically redacted, allowlisted** evidence replay; redaction alone cannot guarantee that internal details or identities have been removed. Perform a final human review before publishing.

@@ -13,18 +13,18 @@ import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 
-from replay_data import evaluation_rows, load_data
-from storyline import story_scenes
-from oversight_status import oversight_status
-from decision_package import decision_package, label as action_label
-from agent_flow import trace_steps, build_replay_html
-from review_evidence import critic_timeline, communication_authority
+from src.replay_data import evaluation_rows, load_data
+from src.storyline import story_scenes
+from src.oversight_status import oversight_status
+from src.decision_package import decision_package, label as action_label
+from src.agent_flow import trace_steps, build_replay_html
+from src.review_evidence import critic_timeline, communication_authority
 
-APP_VERSION = "2.3.4"
+APP_VERSION = "2.4.0"
 TRACE_BATCH_LABEL = "17 October 2026"
 ROOT = Path(__file__).resolve().parent
 st.set_page_config(page_title="Exception / Control — Multi-Agent Delivery AI", page_icon="🟠", layout="wide", initial_sidebar_state="collapsed")
-st.markdown((ROOT / "style.css").read_text(encoding="utf-8"), unsafe_allow_html=True)
+st.markdown((ROOT / "assets" / "style.css").read_text(encoding="utf-8"), unsafe_allow_html=True)
 
 @st.cache_data
 def get_data():
@@ -97,10 +97,62 @@ def challenge():
 This creates a recorded decision trail rather than a standalone generated answer. The proposed actions include **reschedule, reroute to locker, replace, and return to sender**. An *operational action* and an *escalation requirement* are recorded separately from the final resolution.""")
     with cols[1]:
         st.markdown('''<div class="card" style="background:#FFF0E5;border-color:#EDCEBD;min-height:210px"><div class="number">THE OPERATING PRINCIPLE</div><h3 style="font-size:1.35rem">Use judgement where needed.<br>Rules where possible.<br>People where required.</h3><p>Routine events bypass LLM processing. Genuine exceptions receive context-aware recommendations and independent checks. Defined risk or failed validation sends the case to a supervisor.</p></div>''', unsafe_allow_html=True)
-    heading("03 / THE EVIDENCE", "What the completed benchmark shows")
+    operational_value()
+    heading("04 / THE EVIDENCE", "What the completed benchmark shows")
     kpi_grid()
     st.caption(f"The fresh October 17 capture averages {records['aggregate']['mean_latency_seconds']:.2f} seconds across ten cases and {mean_exception_seconds:.2f} seconds across eight exceptions. Two routine events followed the deterministic fast path. Current-run benchmark scores are sourced separately from the executed notebook, not inferred from LangSmith durations. These results are not manual-versus-AI savings or production SLAs.")
     st.markdown('''<div class="feature"><strong>Start with a real example:</strong> SHP-003 shows a correct reschedule decision without human escalation. SHP-004 shows two Critic revisions and a separate supervisor escalation. SHP-006 and SHP-008 demonstrate a Critic objection followed by an accepted revision.</div>''',unsafe_allow_html=True)
+
+
+
+
+def operational_value():
+    """Operational value proposition, explicitly separating capabilities and unmeasured benefits."""
+    heading("03 / OPERATIONAL VALUE", "From exception detected to decision-ready action")
+    st.markdown('''<div class="value-lead">
+      <div class="value-lead-copy">
+        <span class="value-eyebrow">WHAT OPERATIONS TEAMS GAIN</span>
+        <p>Delivery exceptions are not just alerts. They create a chain of decisions across shipment records, policy, depot handling, customer communication and supervisor review. This solution brings that decision preparation into a single, evidence-grounded workflow.</p>
+      </div>
+      <div class="value-bridge" aria-label="Designed operating shift">
+        <div><small>FROM</small><strong>Fragmented investigation and handoffs</strong></div>
+        <span class="value-bridge-arrow" aria-hidden="true">→</span>
+        <div><small>TO</small><strong>One structured decision package</strong></div>
+      </div>
+    </div>''', unsafe_allow_html=True)
+    benefits = [
+        ("01", "DECISION SPEED", "Faster decision preparation",
+         "Combines shipment events, customer and parcel context, retrieved policy guidance and a proposed action in one workflow.",
+         "Less manual information-gathering before an operator can decide."),
+        ("02", "POLICY & QUALITY", "More consistent recommendations",
+         "A Resolution Critic challenges omissions and conflicts; the workflow records corrections and applies deterministic oversight rules.",
+         "More complete recommendations and clearer policy alignment."),
+        ("03", "CONNECTED WORK", "Less fragmented coordination",
+         "Links exception triage, the primary resolution, immediate handling instruction, communication preparation and escalation status.",
+         "Fewer disconnected steps and less re-interpretation between teams."),
+        ("04", "SUPERVISOR SUPPORT", "Decision-ready human handovers",
+         "Identifies when supervisor review is requested and packages the proposed action, operational instructions and review rationale.",
+         "Less case reconstruction for supervisors, while retaining their authority."),
+        ("05", "CUSTOMER EXPERIENCE", "Customer response preparation",
+         "Drafts context-aware customer messages and checks their alignment with the recommended resolution and operational constraints.",
+         "Clearer, reviewable communication drafts—not automatic messages."),
+    ]
+    value_cards = []
+    for number, category, title, mechanism, potential in benefits:
+        value_cards.append(
+            '<article class="value-card">'
+            f'<div class="value-card-top"><span class="value-num">{html(number)}</span><span class="value-category">{html(category)}</span></div>'
+            f'<h3>{html(title)}</h3>'
+            f'<p class="value-mechanism">{html(mechanism)}</p>'
+            f'<div class="value-impact"><span>OPERATIONAL OPPORTUNITY</span><p>{html(potential)}</p></div>'
+            '</article>'
+        )
+    st.markdown('<div class="value-grid" aria-label="Five operational value opportunities">'+''.join(value_cards)+'</div>', unsafe_allow_html=True)
+    st.markdown(f'''<div class="value-proof">
+      <div class="value-proof-stat"><strong>{mean_exception_seconds:.2f}s</strong><span>Mean recorded end-to-end processing time across eight exception scenarios</span></div>
+      <div class="value-proof-stat"><strong>10/10</strong><span>Curated scenarios passed their applicable notebook benchmark checks</span></div>
+      <div class="value-proof-disclaimer"><b>What remains to prove:</b> These are proof-of-concept measurements, not measured reductions in manual effort or cost. A future operational pilot should assess handling effort, first-time decision quality, supervisor review workload and communication preparation time.</div>
+    </div>''', unsafe_allow_html=True)
 
 
 def arch_node(text, sub="", klass=""):
