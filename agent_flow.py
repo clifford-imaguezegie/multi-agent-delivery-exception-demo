@@ -95,7 +95,7 @@ select{border:1px solid #dcc9da;background:white;color:var(--ink);border-radius:
 #activity{font-size:12px;color:#655568;overflow-y:auto;max-height:117px;line-height:1.7}
 #activity div{padding:4px 0;border-bottom:1px solid #f3eee8}#activity span{font-weight:800;color:#a74e39;margin-right:9px}
 .status{display:flex;flex-wrap:wrap;gap:7px 16px;padding:10px 22px;background:#fff0e2;border-top:1px solid var(--edge);font-size:12px;color:#594653}
-.status strong{color:#422646} #playback-info{color:#a94c37;font-variant-numeric:tabular-nums} .progress{height:5px;background:#e6d7dc}.fill{height:5px;background:var(--coral);width:0%;transition:width .2s}
+.status strong{color:#422646} .progress{height:5px;background:#e6d7dc}.fill{height:5px;background:var(--coral);width:0%;transition:width .2s}
 .disclaimer{padding:9px 21px;background:#fcf3e8;font-size:11px;color:#796576;line-height:1.4}
 @media(max-width:700px){.bottom{display:block}.panel+.panel{border-left:none;border-top:1px solid var(--edge)}.toolbar{padding:13px}.toolbar .name{font-size:1.12rem}}
 @media(prefers-reduced-motion:reduce){.node,.fill{transition:none}}
@@ -105,7 +105,7 @@ select{border:1px solid #dcc9da;background:white;color:var(--ink);border-radius:
  <div class="toolbar">
   <div><div class="name">Agent execution map</div><div class="meta" id="scenario"></div></div>
   <div class="buttons"><button id="prev" aria-label="Previous recorded trace event">← Back</button><button class="play" id="play" aria-label="Play recorded workflow">▶ Play</button><button id="next" aria-label="Next recorded trace event">Next →</button><button id="reset" aria-label="Replay from first trace event">↺ Reset</button>
-  <label style="font-size:12px" for="speed">Reading pace</label><select id="speed" aria-label="Reading pace"><option value="reading" selected>Comfortable · default</option><option value="relaxed">Extra reading time</option><option value="overview">Quick overview</option><option value="manual">Manual · one step at a time</option></select></div>
+  <label style="font-size:12px" for="speed">Replay pace</label><select id="speed" aria-label="Replay pace"><option value="1800">Slow</option><option value="1150" selected>Normal</option><option value="600">Fast</option></select></div>
  </div>
  <div class="graphwrap"><div class="graph">
   <svg class="network" viewBox="0 0 1100 365" preserveAspectRatio="xMidYMid meet" aria-label="Seven agent and workflow nodes with animated event transitions" role="img">
@@ -131,8 +131,8 @@ select{border:1px solid #dcc9da;background:white;color:var(--ink);border-radius:
  <div class="progress"><div class="fill" id="fill"></div></div>
  <div class="bottom"><div class="panel"><div class="kicker" id="stepcount">REPLAY EVENT</div><div id="out-title" aria-live="polite"></div><div id="out-line" aria-live="polite"></div><div id="evidence-note" aria-live="polite"></div></div>
   <div class="panel"><div class="kicker">RECORDED EVENT HISTORY</div><div id="activity"></div></div></div>
- <div class="status"><span><strong id="stepmeta"></strong></span><span>Recorded end-to-end: <strong id="duration"></strong></span><span>Node timing: <strong id="stage-time">—</strong></span><span>Reader: <strong id="playback-info" role="status" aria-live="off">Ready</strong></span></div>
- <div class="disclaimer">Playback is deliberately slower than execution to allow time to read each recorded decision. Choose a reading pace, pause, or use Manual / Next. Movement illustrates the <b>actual recorded event order</b>, not real-time execution. Event text and elapsed node timings are taken from an anonymised October 2026 LangSmith trace; no models or logistics actions are invoked.</div>
+ <div class="status"><span><strong id="stepmeta"></strong></span><span>Recorded end-to-end: <strong id="duration"></strong></span><span>Node timing: <strong id="stage-time">—</strong></span></div>
+ <div class="disclaimer">Animated movement and playback speed illustrate the <b>actual recorded event order</b>, not real-time execution. Event text and elapsed node timings are taken from an anonymised October 2026 LangSmith trace; no models or logistics actions are invoked.</div>
 </div>
 <script>
 (() => {
@@ -141,37 +141,11 @@ select{border:1px solid #dcc9da;background:white;color:var(--ink);border-radius:
   const loc = {preprocessor:[140,100],orchestrator:[369,100],resolution_agent:[600,100],resolution_critic:[875,100],communication_agent:[600,285],communication_critic:[875,285],finalizer:[369,285]};
   const $ = id => document.getElementById(id);
   const steps = data.steps;
-  let index = 0, playing = false, timer = null, ticker = null, frame = null, lastNode = 'preprocessor', deadline = 0;
-  // Reader time is intentionally separate from the measured LangSmith timings.
-  // Calculate a readable pause from the amount of text shown for each event.
-  const paceOptions = {
-    reading: {wpm:185, base:4000, min:12000, max:52000},
-    relaxed: {wpm:135, base:6500, min:18000, max:70000},
-    overview: {wpm:300, base:2000, min:6000, max:25000}
-  };
-  function readingDelay(step){
-    const config=paceOptions[$('speed').value];
-    if (!config) return null; // Manual reading: never auto-advance.
-    const content=[step.message,step.evidence_note].filter(Boolean).join(' ').trim();
-    const words=content ? content.split(/\s+/u).length : 0;
-    return Math.max(config.min, Math.min(config.max, Math.round((words/config.wpm)*60000+config.base)));
-  }
-  function playbackStatus(){
-    const pace=$('speed').value;
-    $('play').disabled=pace==='manual';
-    if (pace==='manual'){$('playback-info').textContent='Manual · Back / Next';return;}
-    if (playing){
-      const remaining=Math.max(0,Math.ceil((deadline-performance.now())/1000));
-      $('playback-info').textContent='Next step in '+remaining+'s · Pause anytime';
-    } else {
-      const seconds=Math.round(readingDelay(steps[index])/1000);
-      $('playback-info').textContent='Ready · '+seconds+'s to read this event';
-    }
-  }
+  let index = 0,playing = false, timer = null, frame = null, lastNode = 'preprocessor';
   $('scenario').textContent = data.id+' · '+data.title+' · '+steps.length+' recorded events';
   $('duration').textContent = Number(data.latency).toFixed(2)+' seconds';
   function setActive(node){Object.keys(loc).forEach(n=>{$(n).classList.toggle('active',n===node)});}
-  function stop(){playing=false;clearTimeout(timer);clearInterval(ticker);cancelAnimationFrame(frame);timer=null;ticker=null;$('play').textContent='▶ Play';playbackStatus();}
+  function stop(){playing=false; clearTimeout(timer); cancelAnimationFrame(frame);$('play').textContent='▶ Play';}
   function position(node){let p=loc[node]||loc.preprocessor;$('orb').setAttribute('cx',p[0]);$('orb').setAttribute('cy',p[1]);$('travel').setAttribute('d','');}
   function animate(from,to,done){
     const [x0,y0]=loc[from]||loc.preprocessor, [x1,y1]=loc[to]||loc.preprocessor;
@@ -180,7 +154,7 @@ select{border:1px solid #dcc9da;background:white;color:var(--ink);border-radius:
     const bend=(from==='resolution_critic'&&to==='resolution_agent')?-100:(Math.abs(dx)>400 ? -45 : 0);
     const cx=(x0+x1)/2,cy=(y0+y1)/2+bend;
     const path=$('travel');path.setAttribute('d',`M${x0},${y0} Q${cx},${cy} ${x1},${y1}`);
-    const length=path.getTotalLength();const start=performance.now();const animLength=820;
+    const length=path.getTotalLength();const start=performance.now();const speed=Number($('speed').value);const animLength=Math.min(760,Math.max(260,speed*.54));
     function animateFrame(now){let pct=Math.min(1,(now-start)/animLength);let pt=path.getPointAtLength(length*(pct*pct*(3-2*pct)));$('orb').setAttribute('cx',pt.x);$('orb').setAttribute('cy',pt.y);
       if(pct<1){frame=requestAnimationFrame(animateFrame)}else{path.setAttribute('d','');done()}
     }
@@ -199,35 +173,14 @@ select{border:1px solid #dcc9da;background:white;color:var(--ink);border-radius:
     $('activity').replaceChildren(...recent.map(r=>{const row=document.createElement('div');const lbl=document.createElement('span');lbl.textContent=String(r.index).padStart(2,'0')+' · '+r.agent;row.append(lbl, document.createTextNode(' '+r.message));return row;}));
     $('prev').disabled=index===0;$('next').disabled=index===steps.length-1;
     animate(prev,s.node,()=>{});
-    if(!playing) playbackStatus();
   }
-  function go(i){cancelAnimationFrame(frame);index=Math.max(0,Math.min(steps.length-1,i));render();}
-  function queue(){
-    if(!playing)return;
-    clearTimeout(timer);clearInterval(ticker);
-    const delay=readingDelay(steps[index]);
-    if(delay===null){stop();return;}
-    deadline=performance.now()+delay;
-    playbackStatus();
-    ticker=setInterval(playbackStatus,1000);
-    timer=setTimeout(()=>{
-      clearInterval(ticker);
-      if(index+1>=steps.length){stop();return;}
-      go(index+1);queue();
-    },delay);
-  }
-  $('play').addEventListener('click',()=>{
-    if(playing){stop();return;}
-    if($('speed').value==='manual')return;
-    if(index>=steps.length-1)go(0);
-    playing=true;$('play').textContent='Ⅱ Pause';queue();
-  });
+  function go(i){cancelAnimationFrame(frame);index=Math.max(0,Math.min(steps.length-1,i));render()}
+  function queue(){if(!playing)return;timer=setTimeout(()=>{if(index+1>=steps.length){stop();return;}go(index+1);queue();},Number($('speed').value));}
+  $('play').addEventListener('click',()=>{if(playing){stop();return}if(index>=steps.length-1){go(0)}playing=true;$('play').textContent='Ⅱ Pause';queue();});
   $('prev').addEventListener('click',()=>{stop();go(index-1)});
   $('next').addEventListener('click',()=>{stop();go(index+1)});
   $('reset').addEventListener('click',()=>{stop();lastNode='preprocessor';go(0)});
-  $('speed').addEventListener('change',()=>{if(playing){if($('speed').value==='manual')stop();else queue();}else playbackStatus();});
-  // Do not skip recorded decisions when the visitor switches browser tabs.
-  document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing)stop();});
+  $('speed').addEventListener('change',()=>{if(playing){clearTimeout(timer);queue()}});
   position('preprocessor');render();
 })();
 </script></body></html>'''

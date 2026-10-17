@@ -1,19 +1,12 @@
 # Exception / Control — Multi-Agent Delivery AI
 
-**V2.3.1 | Readable Agent Flow replay + footer version | October 2026**
+**V2.3 | LangSmith evidence-integrated recorded replay | October 2026**
 
 A public-facing, read-only Streamlit portfolio demonstration of the user-developed multi-agent last-mile delivery exception proof of concept. V2.3 retains the established plum/coral/cream visual design and six workspaces, while replacing the *earlier recorded experiment* with the new **17 October 2026 LangSmith rerun**.
 
 > **Recorded replay — not live inference.** Streamlit reads a narrowly allowlisted JSON file. It does not call LLMs, LangSmith, operational APIs, customer databases, RAG services, or send any notifications.
 
-## V2.3.1 usability refinements
-
-- **Human-readable replay is now the default.** The original auto-advance rate was 1.15 seconds/event; the revised Agent Flow uses a word-count-adjusted reading window (typically 12–52 seconds per event at Comfortable pace). Longer Critic rationales receive more time. Visitors can select Extra reading time, Quick overview, or Manual step-by-step, and can Play/Pause/Back/Next/Reset as before. Leaving the browser tab pauses playback so decisions are not skipped.
-- **Separation of time concepts:** The playback speed and reading countdown are for presentation only. Recorded LangSmith end-to-end and per-node timings are unchanged.
-- **Explicit footer release:** Every workspace now finishes with **APP VERSION v2.3.1** and **TRACE · 17 October 2026**, making it simple to verify the correct deployment.
-- **Scope:** No modifications to the captured traces, scenario outcomes, underlying agent logic, benchmark metrics, architecture, story chapters, or SHP-006 video.
-
-## V2.3 evidence integration (preserved)
+## V2.3 upgrades
 
 - **Intermediate Critic evidence:** Each observed Critic verdict displays its captured rationale, the proposal or unsent customer draft it reviewed, and the associated stage duration. For SHP-006, inspect the original REVISE objection, the revised proposal and subsequent ACCEPT.
 - **Measured node timing:** LangSmith stage start and end timestamps are used to show real measured **node elapsed durations and start offsets** in the Agent Flow. These are wall-clock spans (which may contain subcalls); do not add their nested children to stage durations. The moving indicator is still an illustrative animation.
@@ -28,7 +21,7 @@ A public-facing, read-only Streamlit portfolio demonstration of the user-develop
 1. **The challenge:** Operational problem, coordination approach and current run's measured timings.
 2. **Architecture:** Original implemented LangGraph, deterministic fast path, tools/RAG, specialist agents, Critics, human escalation and LangSmith observability.
 3. **Case stories:** Ten guided stories plus associated source-stage chronology and the updated SHP-006 walkthrough film.
-4. **Agent flow:** Seven-node animated trace player with reading-paced auto-advance (Comfortable / Extra time / Quick overview), Manual mode, Back / Next / Play / Pause / Reset, measured stage timings and recovered Critic rationales.
+4. **Agent flow:** Seven-node animated trace player with Back / Next / Play / Pause / Reset, measured stage timings and recovered Critic rationales.
 5. **Evidence room:** Final resolution package, all Critic iterations and prior proposals, public-safe tool span names/durations, redacted unsent customer communication and governance notices.
 6. **Results:** Current captured trace duration and outcomes, without presenting legacy evaluator scores as new-run validation.
 
@@ -91,6 +84,6 @@ python -m pytest -q
 python -m py_compile app.py agent_flow.py review_evidence.py storyline.py replay_data.py
 ```
 
-A production/hosted browser review remains essential. In particular, verify the header on mobile and desktop, Agent Flow reading pauses and Manual mode, footer version label, node movement, exact Critic review text, redactions, video playback and the public case JSON download.
+A production/hosted browser review remains essential. In particular, verify the header on mobile and desktop, node movement, exact critic review text, redactions, video playback and the public case JSON download.
 
 **Data provenance:** Private file `delivery_exception_all_langsmith_traces_PRIVATE.zip`, 10 case folders, each with trace, events and manifest. The public dataset contains only a selected subset from this execution, not the original raw traces. SHP-001/010 may have been labelled `partial` by the old exporter because it incorrectly expected AI-agent spans for intentionally filtered routine events; their captured deterministic paths are complete.

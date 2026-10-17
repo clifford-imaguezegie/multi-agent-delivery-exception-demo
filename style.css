@@ -87,12 +87,3 @@ hr {border-color:var(--line);}
 .authority-note p {margin:6px 0 0;font-size:.81rem;line-height:1.5;}
 
 </style>
-
-/* V2.3.1 — explicitly visible footer release label, retained on every workspace. */
-.footer-note{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;padding-bottom:12px;}
-.footer-description{max-width:800px;line-height:1.65;}
-.release-tag{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#FAEEE7;border:1px solid #E7CDBE;border-radius:10px;padding:9px 13px;color:#4D2C4B;white-space:nowrap;}
-.release-tag span{font-size:.66rem;letter-spacing:.12em;font-weight:800;color:#9E574B;}
-.release-tag strong{font-size:.95rem;color:#321D3C;}
-.release-tag small{font-size:.68rem;color:#796674;}
-@media(max-width:700px){.footer-note{align-items:flex-start;gap:12px;}.release-tag{white-space:normal;}}

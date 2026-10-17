@@ -19,8 +19,6 @@ from decision_package import decision_package, label as action_label
 from agent_flow import trace_steps, build_replay_html
 from review_evidence import critic_timeline, communication_authority
 
-APP_VERSION = "2.3.1"
-TRACE_BATCH_LABEL = "17 October 2026"
 ROOT = Path(__file__).resolve().parent
 st.set_page_config(page_title="Exception / Control — Multi-Agent Delivery AI", page_icon="🟠", layout="wide", initial_sidebar_state="collapsed")
 st.markdown((ROOT / "style.css").read_text(encoding="utf-8"), unsafe_allow_html=True)
@@ -299,7 +297,7 @@ def agent_replay():
     st.markdown('<div class="feature"><strong>Try these contrasting cases:</strong> SHP-003: two Resolution Critic revisions before escalation. SHP-006: a revision followed by ACCEPT. SHP-004: resolution accepted, but human oversight remains required. SHP-007: Communication Critic escalated. Routine cases SHP-001 and SHP-010 bypass LLMs.</div>', unsafe_allow_html=True)
     heading('02 / AGENT-TO-AGENT REPLAY','Original stage order, captured output and measured durations')
     components.html(build_replay_html(case),height=790,scrolling=False)
-    st.caption('Playback now pauses for a readable interval based on each event’s text length. Comfortable reading is the default; choose Extra reading time, Quick overview or Manual, and pause whenever needed. LangSmith stage durations remain the actual recorded timings—not the animated playback time.')
+    st.caption('Each node movement follows an actual saved LangSmith stage event. Recorded seconds measure each stage; the on-screen animation is played at visitor-controlled speed.')
     heading('03 / REVIEW EVIDENCE','View the original objections and revised proposals')
     show_critic_audit(case)
     show_communication_caveat(case)
@@ -413,4 +411,4 @@ elif page=="Case stories":stories()
 elif page=="Agent flow":agent_replay()
 elif page=="Evidence room":evidence()
 else:results()
-st.markdown(f'''<div class="footer-note"><div class="footer-description"><strong>EXCEPTION / CONTROL</strong> &nbsp; · &nbsp; Completed multi-agent AI proof of concept &nbsp; / &nbsp; Recorded evidence replay. No live model, external API, real customer action or private playbook content is hosted in this presentation.</div><div class="release-tag" aria-label="Application version {APP_VERSION}"><span>APP VERSION</span><strong>v{APP_VERSION}</strong><small>TRACE · {html(TRACE_BATCH_LABEL)}</small></div></div>''',unsafe_allow_html=True)
+st.markdown('<div class="footer-note"><strong>EXCEPTION / CONTROL</strong> &nbsp; · &nbsp; Completed multi-agent AI proof of concept &nbsp; / &nbsp; Recorded evidence replay. No live model, external API, real customer action or private playbook content is hosted in this presentation.</div>',unsafe_allow_html=True)
