@@ -16,4 +16,11 @@ Recorded durations are elapsed times of LangGraph stages, and may include intern
 
 ## Missing evidence
 
-Fresh evaluation metrics (task accuracy, tool correctness, coherence) were not included in the LangSmith trace ZIP. They are excluded from V2.3. If new evaluation files are supplied, add them after verifying they correspond to this same run.
+Fresh evaluation metrics (task accuracy, tool correctness, coherence) were not included in the LangSmith trace ZIP. They are excluded from V2.3.1. If new evaluation files are supplied, add them after verifying they correspond to this same run.
+
+## V2.3.1 deployment checks
+
+- [ ] Footer shows **APP VERSION v2.3.1** on every page after redeployment.
+- [ ] Agent Flow defaults to **Comfortable** reading pace and holds each step long enough to read the text.
+- [ ] Extra reading time, Quick overview and Manual stepping all respond correctly; Pause stops auto-advance.
+- [ ] The displayed measured LangSmith case and node times are unchanged by replay pace.
