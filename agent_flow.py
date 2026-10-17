@@ -1,12 +1,13 @@
 """Trace-faithful playback events for the public recorded-replay UI.
 
-One event per original chronological trace line. Timing is available only for the
-whole workflow, never for individual agents/nodes. We do not interpolate it.
+One event per retained LangSmith workflow node. Node elapsed durations use
+recorded start/end timestamps; animation pace is illustrative.
 """
 from __future__ import annotations
 import json
 from html import escape
 from decision_package import decision_package
+from review_evidence import review_annotations
 
 NODE_BY_PREFIX = {
     "preprocessor": "preprocessor",
@@ -29,27 +30,27 @@ NODE_NAMES = {
 
 
 def trace_steps(case: dict) -> list[dict]:
-    steps = []
-    last_node = "preprocessor"
-    for i, raw_line in enumerate(case["trajectory"]):
-        prefix = raw_line.split(":", 1)[0]
-        if prefix in NODE_BY_PREFIX:
-            last_node = NODE_BY_PREFIX[prefix]
-            message = raw_line.partition(":")[2].strip()
-        else:
-            # Continuation of the preceding recorded error (e.g. Pydantic).
-            message = raw_line
-        steps.append({
-            "index": i + 1,
-            "node": last_node,
-            "agent": NODE_NAMES[last_node],
-            "source": raw_line,
-            "message": message,
-            "is_revision": "REVISE" in raw_line.upper() or "REVISION" in raw_line.upper(),
-            "is_escalation": "ESCALAT" in raw_line.upper() or "SUPERVISOR" in raw_line.upper(),
-            "timing": None,  # The notebook only preserves whole-run latency.
-        })
-    return steps
+    """One event per traced LangGraph stage, with measured stage elapsed time."""
+    if case.get('agent_events'):
+        steps=[]
+        for e in case['agent_events']:
+            node={'critic_resolution':'resolution_critic','critic_communication':'communication_critic','finalize':'finalizer'}.get(e['node'], e['node'])
+            preview=e.get('summary','')
+            if e.get('review',{}).get('rationale'):
+                note=e['review']['rationale']
+            elif e.get('proposal',{}).get('rationale'):
+                note=e['proposal']['rationale']
+            elif e.get('draft',{}).get('communication_message'):
+                note=e['draft']['communication_message']
+            else: note=''
+            steps.append({'index':e['index'],'node':node,'agent':NODE_NAMES[node],
+                'source': f"{e['node']}: {preview}", 'message':preview,
+                'is_revision':e.get('review',{}).get('decision')=='REVISE',
+                'is_escalation':e.get('review',{}).get('decision')=='ESCALATE',
+                'evidence_note':note,
+                'timing':e['duration_seconds'],'offset':e['start_offset_seconds']})
+        return steps
+    return []
 
 
 def build_replay_html(case: dict) -> str:
@@ -86,9 +87,10 @@ select{border:1px solid #dcc9da;background:white;color:var(--ink);border-radius:
 .node .icon{font-size:19px;display:block;line-height:1.1}.node .title{font-size:13px;font-weight:750;margin-top:5px}
 .node .small{font-size:10px;color:var(--muted);margin-top:2px}.node.active{background:#fff1e6;border-color:var(--coral);box-shadow:0 2px 23px #ed684840}
 .node.done{border-color:#b6c9ae}
-.bottom{display:grid;grid-template-columns:1.05fr .95fr;gap:0;border-top:1px solid var(--edge);min-height:170px}
+.bottom{display:grid;grid-template-columns:1.05fr .95fr;gap:0;border-top:1px solid var(--edge);min-height:205px}
 .panel{padding:18px 22px}.panel+ .panel{border-left:1px solid var(--edge);background:white}
 .kicker{font-size:10px;letter-spacing:.16em;font-weight:850;color:#b24c37;text-transform:uppercase;margin-bottom:9px}
+#evidence-note{font-size:12px;line-height:1.5;background:#fff1e7;border-left:3px solid #df795b;padding:7px 10px;margin-top:11px;max-height:112px;overflow-y:auto;white-space:pre-wrap;display:none}
 #out-title{font-weight:800;font-size:17px;margin-bottom:7px}#out-line{font-size:14px;line-height:1.48;overflow-wrap:anywhere;max-height:110px;overflow-y:auto;white-space:pre-wrap}
 #activity{font-size:12px;color:#655568;overflow-y:auto;max-height:117px;line-height:1.7}
 #activity div{padding:4px 0;border-bottom:1px solid #f3eee8}#activity span{font-weight:800;color:#a74e39;margin-right:9px}
@@ -127,10 +129,10 @@ select{border:1px solid #dcc9da;background:white;color:var(--ink);border-radius:
   <div class="node" id="communication_critic" style="left:79.55%;top:78.1%"><span class="icon">◇</span><div class="title">Communication Critic</div><div class="small">Validate draft</div></div>
  </div></div>
  <div class="progress"><div class="fill" id="fill"></div></div>
- <div class="bottom"><div class="panel"><div class="kicker" id="stepcount">REPLAY EVENT</div><div id="out-title" aria-live="polite"></div><div id="out-line" aria-live="polite"></div></div>
+ <div class="bottom"><div class="panel"><div class="kicker" id="stepcount">REPLAY EVENT</div><div id="out-title" aria-live="polite"></div><div id="out-line" aria-live="polite"></div><div id="evidence-note" aria-live="polite"></div></div>
   <div class="panel"><div class="kicker">RECORDED EVENT HISTORY</div><div id="activity"></div></div></div>
- <div class="status"><span><strong id="stepmeta"></strong></span><span>Recorded end-to-end: <strong id="duration"></strong></span><span>Individual agent durations: <strong>not captured</strong></span></div>
- <div class="disclaimer">Animated movement and playback speed illustrate the <b>actual recorded event order</b>, not real-time execution. Event text is captured from the anonymised notebook trace; no models or logistics actions are invoked.</div>
+ <div class="status"><span><strong id="stepmeta"></strong></span><span>Recorded end-to-end: <strong id="duration"></strong></span><span>Node timing: <strong id="stage-time">—</strong></span></div>
+ <div class="disclaimer">Animated movement and playback speed illustrate the <b>actual recorded event order</b>, not real-time execution. Event text and elapsed node timings are taken from an anonymised October 2026 LangSmith trace; no models or logistics actions are invoked.</div>
 </div>
 <script>
 (() => {
@@ -163,7 +165,9 @@ select{border:1px solid #dcc9da;background:white;color:var(--ink);border-radius:
     $('stepcount').textContent=`TRACE EVENT ${s.index} / ${steps.length}`;
     $('out-title').textContent=s.agent;
     $('out-line').textContent=s.message||s.source;
-    $('stepmeta').textContent='Event '+(index+1)+' of '+steps.length;
+    $('evidence-note').textContent=s.evidence_note||'';
+    $('evidence-note').style.display=s.evidence_note?'block':'none';
+    $('stepmeta').textContent='Event '+(index+1)+' of '+steps.length; $('stage-time').textContent=Number(s.timing).toFixed(3)+' s · started at +'+Number(s.offset).toFixed(3)+' s';
     $('fill').style.width=((index+1)/steps.length*100).toFixed(1)+'%';
     const recent=steps.slice(Math.max(0,index-3),index+1);
     $('activity').replaceChildren(...recent.map(r=>{const row=document.createElement('div');const lbl=document.createElement('span');lbl.textContent=String(r.index).padStart(2,'0')+' · '+r.agent;row.append(lbl, document.createTextNode(' '+r.message));return row;}));

@@ -1,4 +1,4 @@
-"""Evidence-grounded editorial story chapters derived from stored scenario records.
+"""Evidence-grounded editorial story chapters derived from the current LangSmith-recorded workflow stages.
 
 The chapters summarize *recorded* evidence. They do not fabricate timestamps or
 LLM/tool calls, and a separate full trajectory preserves the original event order.
@@ -45,9 +45,9 @@ def story_scenes(case: dict) -> list[dict]:
             "evidence": lines("resolution_agent:")
         },{
             "label": "04 / INDEPENDENT CHECK", "title": "A separate Critic tests the recommendation",
-            "summary": (f"The Critic requested {rv} revision(s). The two-revision limit was reached, so unresolved concerns were escalated." if rv == 2 and final["escalated"] else
+            "summary": (f"The Critic requested {rv} revisions; the recorded final decision requires human escalation. The review chronology can be inspected in full." if rv == 2 and final["escalated"] else
                         f"The Critic required {rv} revision(s) before the workflow progressed." if rv else
-                        "The recorded Critic accepted the resolution without a revision loop."),
+                        f"The recorded Resolution Critic decision is {cri.get('decision','not recorded')}; no resolution revision loop was required."),
             "evidence": lines("critic_resolution:", "orchestrator: REVISE", "orchestrator: Max resolution revision") + ([f"Final Critic assessment: {cri.get('decision','not recorded')}"] if cri else [])
         },{
             "label": "05 / SUPERVISION", "title": "Apply escalation and operating constraints",
@@ -62,7 +62,7 @@ def story_scenes(case: dict) -> list[dict]:
 
     result.append({
         "label": f"{len(result)+1:02d} / FINAL RECORD", "title": "An auditable decision is captured",
-        "summary": f"The saved final action is {final['resolution'].replace('_',' ')}; escalation {'required' if final['escalated'] else 'not required'}. Original whole-run latency was {case['metrics']['latency_seconds']:.2f} seconds.",
+        "summary": f"The saved final action is {final['resolution'].replace('_',' ')}; escalation {'required' if final['escalated'] else 'not required'}. Current LangSmith root-span duration was {case['metrics']['latency_seconds']:.2f} seconds.",
         "evidence": lines("finalize:")
     })
     return result

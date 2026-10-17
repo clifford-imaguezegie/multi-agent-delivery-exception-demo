@@ -1,0 +1,14 @@
+__pycache__/
+.pytest_cache/
+*.pyc
+.venv/
+.env
+.env.*
+*PRIVATE*
+*private_trace*
+*langsmith*traces*.zip
+*.db
+*.sqlite
+*.sqlite3
+*.ipynb
+.env.local

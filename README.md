@@ -1,112 +1,89 @@
 # Exception / Control — Multi-Agent Delivery AI
 
-**Version 2.1 — Decision-package and animated-agent-flow update | October 2026**
+**V2.3 | LangSmith evidence-integrated recorded replay | October 2026**
 
-A public portfolio presentation of the completed **multi-agent last-mile delivery exception handling** proof of concept. This release has its own plum/coral/cream visual identity, six focused workspaces, a notebook-grounded architecture map, chapter-based storytelling, a 36-second silent captioned walkthrough, and an interactive animated replay of the original recorded agent transitions.
+A public-facing, read-only Streamlit portfolio demonstration of the user-developed multi-agent last-mile delivery exception proof of concept. V2.3 retains the established plum/coral/cream visual design and six workspaces, while replacing the *earlier recorded experiment* with the new **17 October 2026 LangSmith rerun**.
 
-> **Important:** This is a **recorded replay**, not live execution. The Streamlit application never runs the original agents, calls OpenRouter, retrieves the private playbook, reads customer databases, sends messages, or changes real shipments.
+> **Recorded replay — not live inference.** Streamlit reads a narrowly allowlisted JSON file. It does not call LLMs, LangSmith, operational APIs, customer databases, RAG services, or send any notifications.
 
-## The business problem
+## V2.3 upgrades
 
-When last-mile deliveries fail, human operations teams must triage noisy status feeds, examine context from driver notes and customers, consult operational policy, decide whether to reschedule, reroute, replace or return the shipment, identify supervisor escalation requirements, and draft communications. The original proof of concept explores how deterministic controls plus coordinated LLM agents could streamline and improve consistency of these decisions.
+- **Intermediate Critic evidence:** Each observed Critic verdict displays its captured rationale, the proposal or unsent customer draft it reviewed, and the associated stage duration. For SHP-006, inspect the original REVISE objection, the revised proposal and subsequent ACCEPT.
+- **Measured node timing:** LangSmith stage start and end timestamps are used to show real measured **node elapsed durations and start offsets** in the Agent Flow. These are wall-clock spans (which may contain subcalls); do not add their nested children to stage durations. The moving indicator is still an illustrative animation.
+- **Run-specific fidelity:** The former SHP-004 two-revision storyline is **not carried forward**; its new run has Resolution Critic ACCEPT with separate required human escalation. SHP-003 now has two REVISE decisions and a terminal ESCALATE. SHP-007 includes Communication Critic ESCALATE.
+- **Updated results:** The ten captured root spans have a **16.41-second mean**, while eight actionable exceptions average **20.51 seconds**. All ten runs have root and per-stage evidence; 428 total LangSmith spans were exported. SHP-001 and SHP-010 are intentionally routine fast-path cases.
+- **Recorded-story video:** Replaced the archival SHP-004 explainer with a 28-second, silent, captioned **SHP-006 REVISE → ACCEPT** reconstruction based on the new trace. Its film duration is not the model inference time.
+- **Honest evaluation boundaries:** Prior experimental completion, tool correctness and LLM coherence scores are **not represented as scores on this rerun**. New scoring requires evaluation output from the new execution.
+- **Public data safety:** Only fields relevant to the replay and short agent outputs are exported. Customer and address redaction is applied; no raw LangSmith traces, private playbook passages, prompts, authentication tokens, retrieved context, or complete input/output states are packaged.
 
-## Six visitor workspaces
+## Workspaces
 
-1. **The challenge:** Plain-English operational problem, the solution approach and responsibly labelled benchmark outcomes.
-2. **Architecture:** Data/knowledge inputs → deterministic preprocessor → LangGraph orchestrator → operational tools and RAG → Resolution Agent / independent Critic with capped revision loop → Communication Agent / Critic → policy escalation and finalisation, with LangSmith observability. Also identifies the two Gemma model roles.
-3. **Case stories:** Every one of the ten shipments has evidence-grounded, plain-English story chapters, independent navigation, chapter evidence, **full decision packages**, and the full original-order recorded event sequence. Includes a **36-second captioned MP4** on the damaged fragile VIP shipment SHP-004.
-4. **Agent flow (new):** An interactive seven-node architecture with a moving indicator that follows **every captured trace event in its original order**. Use Play/Pause, Next/Back, Reset and replay speed. Displays the current agent's captured output alongside the latest events and overall measured case latency. Critic revision loops and supervisor escalation occur exactly as recorded. The animation is **illustrative**, not a time-accurate inference recording; **individual agent durations were not captured**.
-5. **Evidence room:** Anonymised recorded agent decisions, tools, Critic outcomes, safeguards, policy reference metadata, communication drafts and original execution event lines.
-6. **Results:** Source benchmark metrics, per-case measured elapsed times, whole-sample versus exception-only mean latencies, a downloadable benchmark table (including primary resolution, operational instruction, communication and supervisor decision) and evidence limitations.
+1. **The challenge:** Operational problem, coordination approach and current run's measured timings.
+2. **Architecture:** Original implemented LangGraph, deterministic fast path, tools/RAG, specialist agents, Critics, human escalation and LangSmith observability.
+3. **Case stories:** Ten guided stories plus associated source-stage chronology and the updated SHP-006 walkthrough film.
+4. **Agent flow:** Seven-node animated trace player with Back / Next / Play / Pause / Reset, measured stage timings and recovered Critic rationales.
+5. **Evidence room:** Final resolution package, all Critic iterations and prior proposals, public-safe tool span names/durations, redacted unsent customer communication and governance notices.
+6. **Results:** Current captured trace duration and outcomes, without presenting legacy evaluator scores as new-run validation.
 
-## V2.1 change log
+## What the trace actually contains
 
-- **Header visibility:** Increased Streamlit top spacing and strengthened brand text contrast to keep the header below the fixed Streamlit toolbar.
-- **Full decision package:** Every selected case now displays **primary resolution**, **operational handling**, **customer-contact / draft status**, and **supervisor escalation**. These are deliberately distinct: for example **SHP-005** proposes rerouting to a locker, while the recorded operational instruction is **hold at depot pending supervisor** because the available locker is full. No delivery, outreach or escalation actually occurs in this read-only replay.
-- **Animated agent trace:** New **Agent flow** workspace uses only the original saved event order, including repeated visits to agents, Critic REVISE loops, structured-output retries and routine-event fast paths. Replay pace is controlled by the visitor and is unrelated to actual measured case latency.
-- **Existing design preserved:** The Challenge, Architecture, Case stories, Evidence room and Results remain available in the original plum/coral/cream editorial style.
+| Case | Resolution review events | Latest run duration |
+| --- | --- | ---: |
+| SHP-001 | Routine fast path | 0.017s |
+| SHP-002 | ACCEPT | 17.027s |
+| SHP-003 | REVISE → REVISE, terminal ESCALATE | 39.522s |
+| SHP-004 | ACCEPT (supervisor escalation separately required) | 16.337s |
+| SHP-005 | ACCEPT (locker holding instruction preserved) | 16.548s |
+| SHP-006 | REVISE → ACCEPT | 12.737s |
+| SHP-007 | ACCEPT; Communication Critic ESCALATE | 28.832s |
+| SHP-008 | ACCEPT | 21.070s |
+| SHP-009 | ACCEPT | 12.013s |
+| SHP-010 | Routine fast path | 0.018s |
 
-## Key measured figures
+**Important:** A Critic's ACCEPT is evidence of a recorded model assessment, not proof of operational correctness, customer approval or a completed delivery action. Although the new LangSmith trace includes individual stage timings, it does not establish speedups over manual operations.
 
-| Measurement | Recorded result | Notes |
-| --- | ---: | --- |
-| All-run mean end-to-end latency | **13.86 seconds** | Across 10 cases including 2 non-exceptions |
-| Exception-only mean latency | **17.32 seconds** | Eight actionable exception cases, calculated from individual stored times |
-| Individual exception latency range | **8.41–32.65 seconds** | Cannot claim every exception finishes within 15 seconds |
-| Non-exception fast path | **0.02 / 0.03 seconds** | Routine events: SHP-001, SHP-010 |
-| Task completion | **10 / 10** | Small curated benchmark |
-| Tool-call correctness | **10 / 10** | Small curated benchmark |
-| Escalation accuracy | **8 / 8** | Cases with applicable escalation labels |
-| Escalation routing correctness | **10 / 10** | Includes two routine/no-escalation cases |
-| Coherence | **5 / 5** | Mean score from LLM-as-a-Judge in original notebook |
+## Setup and deployment
 
-These results are **not evidence of measured improvement over manual exception handling**, nor a production reliability benchmark. No per-node timings are provided in the saved notebook event traces, so the guided chapters and animation never imply per-stage timings.
-
-## Local quick start
-
-Use **Python 3.10+**. The source file was syntax-checked with the available local Python runtime, but should be browser-tested in the selected Streamlit deployment environment.
+Python 3.10+ recommended, and Streamlit Community Cloud is a suitable host. Execute:
 
 ```bash
-python -m venv .venv
-# Windows PowerShell
-.venv\Scripts\Activate.ps1
-# macOS / Linux
-# source .venv/bin/activate
-
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Visit the local URL supplied by Streamlit (usually http://localhost:8501). No credentials or external APIs are needed. The app reads the included anonymised `data/recorded_cases.json`.
+No secrets or network access are needed for the **application** after installation.
 
-## Streamlit Community Cloud
+To deploy, create or update the public GitHub repository (e.g. `multi-agent-delivery-exception-ai`). Put `app.py` in the root with its modules, `.streamlit/`, `data/` and `assets/`. On Streamlit Community Cloud select `app.py` as the entry point.
 
-1. Create a public GitHub repository for this **sanitised demo package only**. Do **not** upload the private original notebook, source CSVs, SQLite database, internal playbook PDF, customer data or credentials.
-2. Upload `app.py`, `replay_data.py`, `storyline.py`, `agent_flow.py`, `decision_package.py`, `style.css`, `.streamlit/config.toml`, `requirements.txt`, `data/recorded_cases.json`, `assets/shp004_story.mp4`, and supporting scripts/tests.
-3. Configure `app.py` as the main file in Streamlit Community Cloud.
-4. Check header visibility, navigation, full four-part outcome cards, animated flow controls and loops, data table, story chapter buttons, scenario selection, provenance tabs, and embedded MP4 on the hosted site.
-5. Share the URL alongside your LinkedIn and Great Learning portfolio entries, and label it **recorded execution replay**.
+**Do not upload:** the private LangSmith ZIP, the original notebook, private CSV/SQLite files, internal policy PDF, customer information, or API credentials. The `scripts/build_public_trace_replay.py` utility takes a **private local ZIP** and writes only explicitly allowlisted values. It is an authoring utility, *not* used by the public Streamlit application. Never point the deployed app at a private trace export.
 
-## Provenance, privacy and faithful replay
-
-- **Source:** `Delivery_Exception_Multi_Agent_AI_Solution_Full_Code_Markdown_Aligned(3).ipynb` — the original, private course-project notebook.
-- `scripts/extract_notebook.py` was used to build the redacted source dataset from ten stored execution records. It must be run privately if re-extracting; do not package the notebook itself in the public repo.
-- `storyline.py` generates editorial chapter summaries exclusively from the captured scenario values and trajectories. All original exported event lines remain inspectable under **Case stories → Original chronological event sequence** and **Evidence room → Raw event history**.
-- SHP-004's Critic requested **two revisions**, and the orchestrator **forced escalation** when the configured revision limit was reached. The video is a silent, edited reconstruction of this evidence; it is **not** a recording of original inference and its 36-second length must not be confused with the **28.58-second** original run.
-- The original playbook is marked **Internal Use Only**. The public package includes chunk/page reference metadata, not full policy passages.
-- Names, customer IDs, street addresses and other direct identifiers were redacted before export. Review any new data and assets for private information before publishing.
-- The replay is not a live logistics operating system: it cannot dispatch a vehicle, replace a package, process a refund, send a customer message or contact a supervisor.
-- The animated indicator follows logged nodes **in order**. Each displayed source trace line is unchanged from the anonymised source and is never assigned a fabricated node duration. The whole-case measured time is shown separately.
-- For SHP-005, rerouting to a locker was a **resolution category**; the recorded operational instruction explicitly requires a supervisor hold, not an executed reroute.
+**Privacy gate:** Automated redaction does not guarantee that every name, address, contractual term, or internal policy paraphrase has been caught. A human must inspect `data/recorded_cases.json`, particularly each `rationale` and `communication_message`, before making the repository public. If internal policy content is uncertain, remove the passage rather than publish it.
 
 ## Repository structure
 
 ```text
-app.py                         Six-page Streamlit application
-style.css                      Distinct editorial plum/coral/cream design
-storyline.py                   Evidence-grounded chapter summaries
-agent_flow.py                  Interactive HTML/SVG playback generated from saved traces
-decision_package.py           Full recorded resolution + handling + communication + escalation summaries
-replay_data.py                 Original recorded-case loader and validators
-.streamlit/config.toml         Native Streamlit theme
-requirements.txt               Streamlit + pandas
-assets/shp004_story.mp4        Silent, captioned, edited video reconstruction
-data/recorded_cases.json       Sanitised original replay evidence
-scripts/extract_notebook.py    Private notebook extraction helper
-scripts/build_walkthrough_video.py  Offline authoring script; not needed by Streamlit
-tests/                         Content, privacy, and story integrity checks
+app.py                              Six-workspace Streamlit application
+agent_flow.py                       Interactive recorded-stage graph
+review_evidence.py                  Critic feedback + decision authority
+storyline.py                        Narrative evidence chapters
+decision_package.py                 Four-part outcome presentation
+replay_data.py                      Dataset loader and validation
+style.css                           Plum, coral and cream branding
+.streamlit/config.toml              Streamlit visual theme
+data/recorded_cases.json            Privacy-redacted, allowlisted LangSmith stages
+assets/shp006_story.mp4             Current-run edited walkthrough
+scripts/build_public_trace_replay.py Private authoring from LangSmith ZIP (optional)
+scripts/build_walkthrough_video.py   Offline edited-video authoring
+tests/                              Offline integrity, replay and privacy checks
 ```
 
-## Testing
+## Integrity checks
 
 ```bash
 python -m pytest -q
+python -m py_compile app.py agent_flow.py review_evidence.py storyline.py replay_data.py
 ```
 
-The offline authored video can be regenerated with Pillow and ffmpeg from the recorded SHP-004 record:
+A production/hosted browser review remains essential. In particular, verify the header on mobile and desktop, node movement, exact critic review text, redactions, video playback and the public case JSON download.
 
-```bash
-python scripts/build_walkthrough_video.py
-```
-
-A local/hosted browser acceptance pass should be completed before publicly sharing the deployment.
+**Data provenance:** Private file `delivery_exception_all_langsmith_traces_PRIVATE.zip`, 10 case folders, each with trace, events and manifest. The public dataset contains only a selected subset from this execution, not the original raw traces. SHP-001/010 may have been labelled `partial` by the old exporter because it incorrectly expected AI-agent spans for intentionally filtered routine events; their captured deterministic paths are complete.

@@ -75,4 +75,15 @@ hr {border-color:var(--line);}
 .decision-card .decision-head {font-size:.86rem;color:var(--ink);font-weight:800;margin:12px 0 7px;}
 .decision-card p {font-size:.82rem;line-height:1.48;color:#665465;margin:0;overflow-wrap:anywhere;}
 @media(max-width:800px){.block-container {padding-top:4.6rem !important;} .brand {min-height:62px;} }
+/* V2.2: distinguish recorded review decisions, missing historical feedback,
+   and supervisor-authority boundaries without changing the existing visual system. */
+.review-card {background:white;border:1px solid #e3cfcb;border-radius:15px;padding:16px;margin:10px 0 8px;min-height:155px;}
+.review-index {font-size:.67rem;letter-spacing:.13em;color:#9a574c;font-weight:800;}
+.review-decision {font-size:1.15rem;font-weight:850;margin:8px 0 12px;}
+.review-decision.revise {color:#ae6333}.review-decision.accept {color:#4b7550}.review-decision.escalate {color:#9b4450}
+.review-proposal {font-size:.81rem;color:#605467;line-height:1.6;overflow-wrap:anywhere;}
+.authority-note {margin:10px 0 16px;background:#f8e9ee;border-left:4px solid #8b596d;padding:13px 17px;border-radius:0 12px 12px 0;color:#432c46;}
+.authority-note strong {font-size:.87rem;}
+.authority-note p {margin:6px 0 0;font-size:.81rem;line-height:1.5;}
+
 </style>
