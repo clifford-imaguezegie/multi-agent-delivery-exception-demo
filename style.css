@@ -2,8 +2,8 @@
 :root {--cream:#FFF9F2;--ink:#291D2D;--plum:#2E1938;--coral:#ED6848;--amber:#F7C582;--line:#EBDDD3;--muted:#736472;}
 html, body, [class*="css"], [data-testid="stAppViewContainer"] {font-family:'Segoe UI', 'Inter', system-ui, sans-serif;}
 .stApp {background:var(--cream);color:var(--ink);}
-.block-container {max-width: 1230px; padding-top: 1.4rem; padding-bottom:3rem;}
-[data-testid="stHeader"] {background:rgba(255,249,242,.92);}
+.block-container {max-width: 1230px; padding-top: 4.9rem !important; padding-bottom:3rem;}
+[data-testid="stHeader"] {background:rgba(255,249,242,.98);}
 [data-testid="stSidebar"] {background:var(--cream);}
 .stRadio [role="radiogroup"] {gap:.35rem;flex-wrap:wrap;}
 .stRadio [role="radiogroup"] label {border:1px solid var(--line);padding:.45rem .85rem;border-radius:30px;background:white;}
@@ -64,4 +64,15 @@ p {line-height:1.63;}
 [data-testid="stMetricValue"] {color:#34203C;}
 hr {border-color:var(--line);}
 @media(max-width:800px) {.hero {padding:30px 24px;min-height:auto;} .hero h1{font-size:2.7rem;} .brandright{display:none;} .scene{padding:24px;} .arch-node{min-width:125px;}}
+
+
+/* V2.1: keep branding below Streamlit's fixed application toolbar. */
+.brand {position:relative;z-index:2;min-height:67px;margin-top:4px;}
+.brandmark, .brandmark > span:not(.brandicon) {color:#291d2d !important;opacity:1 !important;}
+.brandmark .brandicon {color:#ffffff !important;}
+.decision-card {background:#fff;border:1px solid var(--line);border-radius:15px;padding:17px 15px;min-height:148px;margin-bottom:10px;}
+.decision-card .number {font-size:.67rem;font-weight:800;letter-spacing:.12em;color:var(--coral);}
+.decision-card .decision-head {font-size:.86rem;color:var(--ink);font-weight:800;margin:12px 0 7px;}
+.decision-card p {font-size:.82rem;line-height:1.48;color:#665465;margin:0;overflow-wrap:anywhere;}
+@media(max-width:800px){.block-container {padding-top:4.6rem !important;} .brand {min-height:62px;} }
 </style>

@@ -11,9 +11,12 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 from replay_data import evaluation_rows, load_data
 from storyline import story_scenes
+from decision_package import decision_package, label as action_label
+from agent_flow import trace_steps, build_replay_html
 
 ROOT = Path(__file__).resolve().parent
 st.set_page_config(page_title="Exception / Control — Multi-Agent Delivery AI", page_icon="🟠", layout="wide", initial_sidebar_state="collapsed")
@@ -162,6 +165,25 @@ def case_summary(case):
     st.markdown(f'<div class="case-banner"><strong>{html(case["id"])} &nbsp; / &nbsp; {html(case["title"])}</strong><br><span style="font-size:.85rem">{html(case["event"].get("status_code","—"))} &nbsp; · &nbsp; {html(final["resolution"].replace("_"," "))} &nbsp; · &nbsp; {html(flag)} &nbsp; · &nbsp; {case["metrics"]["latency_seconds"]:.2f}s recorded</span></div>',unsafe_allow_html=True)
 
 
+def show_decision_package(case):
+    package = decision_package(case)
+    heading("THE FULL OUTCOME", "More than a resolution label")
+    sections = [
+        ("01 / RESOLUTION", "Primary resolution", package["primary"]),
+        ("02 / HANDLING", "Operational instruction", package["operational"]),
+        ("03 / CUSTOMER", "Customer communication", package["customer"]),
+        ("04 / GOVERNANCE", "Supervisor decision", package["supervisor"]),
+    ]
+    cols=st.columns(4, gap="small")
+    for col,(num,title,value) in zip(cols,sections):
+        with col:
+            st.markdown(f'<div class="decision-card"><div class="number">{html(num)}</div><div class="decision-head">{html(title)}</div><p>{html(value)}</p></div>',unsafe_allow_html=True)
+    if package["escalation_triggers"]:
+        with st.expander("Why human review was required — recorded escalation reasons"):
+            for trigger in package["escalation_triggers"]:render_event_line(trigger)
+    st.caption("All outcomes are recorded recommendations, handling instructions, draft communications and routing decisions. The replay does not execute deliveries, contact customers or notify supervisors.")
+
+
 def stories():
     hero("The case stories / Actual captured runs", "Follow a decision. See what the agents really did.",
          "Explore scenario-based narratives reconstructed from the original notebook traces. The stories explain each decision, while the full chronological event sequence remains available for inspection.")
@@ -169,6 +191,7 @@ def stories():
     heading("01 / CHOOSE YOUR CASE", "Ten recorded decisions, different operating challenges")
     case=case_by_id[case_selector()]
     case_summary(case)
+    show_decision_package(case)
     left,right=st.columns([1.6,1],gap="large")
     with left:
         st.markdown('''<div class="section-eyebrow">02 / GUIDED STORY</div>''',unsafe_allow_html=True)
@@ -203,6 +226,7 @@ def stories():
     with st.expander("Original chronological event sequence — all recorded trace lines"):
         for i,line in enumerate(case["trajectory"],1):render_event_line(line,i)
         st.caption("These trace lines have original ordering, but do not contain per-node timestamps. No durations are assigned to individual steps.")
+    st.markdown('**Want to see the actual back-and-forth?** Open the **Agent flow** workspace to watch the recorded events move between agents, including revision loops.\n')
     heading("03 / THE FILM", "Watch the SHP-004 decision unfold")
     video=ROOT/"assets"/"shp004_story.mp4"
     a,b=st.columns([1.35,.65],gap="large")
@@ -217,12 +241,30 @@ def stories():
         st.caption("The film is an edited explanation, not a screen recording of live inference. Its duration is not the model processing time: the original SHP-004 run took 28.58 seconds.")
 
 
+def agent_replay():
+    hero("The agent flow / A recorded conversation between components", "Watch the decision travel. Including the return loops.",
+         "Follow the actual chronological trace as control passes between preprocessing, LangGraph orchestration, specialist agents, independent Critics and finalisation. The moving indicator is an illustration of recorded event order, not live inference.")
+    note("Individual agent execution timings were not captured in the original notebook. Only the measured full-case latency is shown; the animated replay runs at a viewer-controlled pace.")
+    heading("01 / SELECT A RECORDING", "See the flow of decisions, revisions and escalations")
+    case=case_by_id[case_selector()]
+    case_summary(case)
+    st.markdown('<div class="feature"><strong>Try these contrasting cases:</strong> SHP-004 shows two Critic revisions and supervisor escalation; SHP-003 shows a revision and structured-output validation retry; SHP-005 shows a locker recommendation held for supervisor review because the locker is full. SHP-001 shows why routine events skip the AI agents.</div>', unsafe_allow_html=True)
+    heading("02 / LIVE-STYLE ANIMATION OF SAVED EVENTS", "Agent-to-agent execution replay")
+    components.html(build_replay_html(case), height=730, scrolling=False)
+    show_decision_package(case)
+    with st.expander("Full chronological source trace (all events, unchanged and ordered)"):
+        for step in trace_steps(case):
+            render_event_line(step["source"],step["index"])
+    st.caption("The motion is illustrative. The event sequence and source lines come from the anonymised recorded notebook trace. Node-level timestamps and intermediate Critic payloads were not saved; the app does not infer them.")
+
+
 def evidence():
     hero("Under the surface / Inspection room", "A decision is only as useful as its evidence.",
          "Read the anonymised tool activity, agent recommendations, independent Critic assessments, policy references and unsent customer drafts recorded in the original notebook.")
     note("The original playbook was marked Internal Use Only; the public replay includes reference metadata but not private policy passages.")
     case=case_by_id[case_selector()]
     case_summary(case)
+    show_decision_package(case)
     tabs=st.tabs(["Agent & Critic decisions","Tools & controls","Policy provenance","Customer draft","Raw event history"])
     with tabs[0]:
         a,b=st.columns(2,gap="large")
@@ -286,6 +328,9 @@ def results():
     st.caption("The coherence scores were evaluated by an LLM-as-a-Judge; the original notebook reported 5/5 in all ten cases. Results have not been independently audited on live operations.")
     heading("02 / CASE-LEVEL RESULTS", "The longer cases tell the interesting story")
     df=pd.DataFrame(evaluation_rows(records))
+    df["Operational instruction"] = [decision_package(case)["operational"] for case in cases]
+    df["Customer communication"] = [decision_package(case)["customer"] for case in cases]
+    df["Supervisor review"] = [decision_package(case)["supervisor"] for case in cases]
     a,b=st.columns([1.05,.95],gap="large")
     with a:
         st.bar_chart(df.set_index("Shipment")[["Latency (s)"]],height=300,color="#ED6848")
@@ -308,11 +353,12 @@ def results():
         with col:card(*item)
 
 brand()
-pages=["The challenge","Architecture","Case stories","Evidence room","Results"]
+pages=["The challenge","Architecture","Case stories","Agent flow","Evidence room","Results"]
 page=st.radio("Explore",pages,horizontal=True,label_visibility="collapsed",key="view")
 if page=="The challenge":challenge()
 elif page=="Architecture":architecture()
 elif page=="Case stories":stories()
+elif page=="Agent flow":agent_replay()
 elif page=="Evidence room":evidence()
 else:results()
 st.markdown('<div class="footer-note"><strong>EXCEPTION / CONTROL</strong> &nbsp; · &nbsp; Completed multi-agent AI proof of concept &nbsp; / &nbsp; Recorded evidence replay. No live model, external API, real customer action or private playbook content is hosted in this presentation.</div>',unsafe_allow_html=True)
