@@ -16,6 +16,8 @@ def validate_data(data:dict)->None:
     assert all(c.get('agent_events') and c.get('final_action') and c['metrics']['latency_seconds']>=0 for c in cases)
     assert data['aggregate']['total_spans']==sum(c['trace_summary']['spans_recorded'] for c in cases)
     assert round(sum(c['metrics']['latency_seconds'] for c in cases)/10,2)==data['aggregate']['mean_latency_seconds']
+    assert data['aggregate'].get('benchmarked_cases') == 10
+    assert all('benchmark_assessment' in c for c in cases)
 
 def evaluation_rows(data:dict)->list[dict]:
     return [{
@@ -28,5 +30,11 @@ def evaluation_rows(data:dict)->list[dict]:
       'Resolution reviews':' → '.join(e.get('review',{}).get('decision','') for e in c['agent_events'] if e['node']=='critic_resolution') or 'N/A',
       'Communication review':' → '.join(e.get('review',{}).get('decision','') for e in c['agent_events'] if e['node']=='critic_communication') or 'N/A',
       'Revisions':c['final_action']['revision_count'],
-      'Human escalation': 'YES' if c['final_action']['escalated'] else 'NO',
+      'Supervisor escalation requested': 'YES' if c['final_action']['escalated'] else 'NO',
+      'Benchmark expected escalation': str(c['ground_truth'].get('escalation','N/A')).upper(),
+      'Task check':c['benchmark_assessment']['checks']['Task'],
+      'Resolution check':c['benchmark_assessment']['checks']['Resolution'],
+      'Escalation check':c['benchmark_assessment']['checks']['Escalation'],
+      'Tools check':c['benchmark_assessment']['checks']['Tools'],
+      'Judge coherence /5':c['benchmark_assessment']['coherence_score'],
     } for c in data['cases']]

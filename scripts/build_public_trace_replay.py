@@ -52,7 +52,10 @@ def public_build(private_zip):
             runs=json.loads(z.read(f'{shipment}/trace.json'))['runs']
             manifest=json.loads(z.read(f'{shipment}/manifest.json'))
             clean=build_redactor(runs)
-            assert all(not r.get('error') for r in runs)
+            # A child model call can fail validation and be recovered by the graph;
+            # reject root/finalisation failures while retaining a diagnostic count.
+            recovered_errors=[r for r in runs if r.get('error')]
+            assert not any(r.get('error') for r in runs if r['name'] in ('delivery_exception_case','finalize')), shipment
             root=next(r for r in runs if r['name']=='delivery_exception_case')
             stages=[r for r in runs if r['name'] in NODES and not r['name'].endswith('_node')]
             stages.sort(key=lambda r:(r['start_time'],r.get('dotted_order','')))
@@ -119,7 +122,7 @@ def public_build(private_zip):
               'metrics':{'latency_seconds':elapsed(root['start_time'],root['end_time'])},
               'trajectory':timeline,
               'agent_events':events,
-              'trace_summary':{'spans_recorded':len(runs),'root_completed':bool(root.get('end_time')),'source':'LangSmith per-case trace export','captured_at':'2026-10-17'},
+              'trace_summary':{'spans_recorded':len(runs),'root_completed':bool(root.get('end_time')),'recovered_error_spans':len(recovered_errors),'source':'LangSmith per-case trace export','captured_at':'2026-10-17'},
               'tool_calls':[f"{r['name']} · {elapsed(r['start_time'],r['end_time']):.3f}s (recorded tool span; arguments hidden)" for r in runs if r.get('run_type')=='tool' and r.get('name') in ('lookup_customer_profile','check_locker_availability','search_playbook','check_escalation_rules')], 'playbook_references':[], 'citation_pages':[],
             }
             cases.append(case)

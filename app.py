@@ -15,10 +15,13 @@ import streamlit.components.v1 as components
 
 from replay_data import evaluation_rows, load_data
 from storyline import story_scenes
+from oversight_status import oversight_status
 from decision_package import decision_package, label as action_label
 from agent_flow import trace_steps, build_replay_html
 from review_evidence import critic_timeline, communication_authority
 
+APP_VERSION = "2.3.4"
+TRACE_BATCH_LABEL = "17 October 2026"
 ROOT = Path(__file__).resolve().parent
 st.set_page_config(page_title="Exception / Control — Multi-Agent Delivery AI", page_icon="🟠", layout="wide", initial_sidebar_state="collapsed")
 st.markdown((ROOT / "style.css").read_text(encoding="utf-8"), unsafe_allow_html=True)
@@ -96,8 +99,8 @@ This creates a recorded decision trail rather than a standalone generated answer
         st.markdown('''<div class="card" style="background:#FFF0E5;border-color:#EDCEBD;min-height:210px"><div class="number">THE OPERATING PRINCIPLE</div><h3 style="font-size:1.35rem">Use judgement where needed.<br>Rules where possible.<br>People where required.</h3><p>Routine events bypass LLM processing. Genuine exceptions receive context-aware recommendations and independent checks. Defined risk or failed validation sends the case to a supervisor.</p></div>''', unsafe_allow_html=True)
     heading("03 / THE EVIDENCE", "What the completed benchmark shows")
     kpi_grid()
-    st.caption("This October 17 LangSmith capture shows 16.41 seconds across all ten cases and 20.51 seconds across eight actionable exceptions; routine events took approximately 0.02 seconds. These are measured trace durations, not manual-versus-AI savings or production SLAs. Benchmark scoring from the earlier run is not attributed to this rerun.")
-    st.markdown('''<div class="feature"><strong>Start with a real example:</strong> SHP-006 demonstrates a Critic objection followed by a revised, accepted proposal. SHP-003 shows two recorded Resolution Critic objections and final escalation. SHP-004 demonstrates acceptance with a separate supervisor escalation requirement.</div>''',unsafe_allow_html=True)
+    st.caption(f"The fresh October 17 capture averages {records['aggregate']['mean_latency_seconds']:.2f} seconds across ten cases and {mean_exception_seconds:.2f} seconds across eight exceptions. Two routine events followed the deterministic fast path. Current-run benchmark scores are sourced separately from the executed notebook, not inferred from LangSmith durations. These results are not manual-versus-AI savings or production SLAs.")
+    st.markdown('''<div class="feature"><strong>Start with a real example:</strong> SHP-003 shows a correct reschedule decision without human escalation. SHP-004 shows two Critic revisions and a separate supervisor escalation. SHP-006 and SHP-008 demonstrate a Critic objection followed by an accepted revision.</div>''',unsafe_allow_html=True)
 
 
 def arch_node(text, sub="", klass=""):
@@ -162,7 +165,7 @@ def render_event_line(line: str, number: int | None = None):
 
 def case_summary(case):
     final=case["final_action"]
-    flag="SUPERVISOR ESCALATION" if final["escalated"] else "NO FINAL ESCALATION"
+    flag="ESCALATION REQUESTED" if final["escalated"] else "NO ESCALATION REQUESTED"
     st.markdown(f'<div class="case-banner"><strong>{html(case["id"])} &nbsp; / &nbsp; {html(case["title"])}</strong><br><span style="font-size:.85rem">{html(case["event"].get("status_code","—"))} &nbsp; · &nbsp; {html(final["resolution"].replace("_"," "))} &nbsp; · &nbsp; {html(flag)} &nbsp; · &nbsp; {case["metrics"]["latency_seconds"]:.2f}s recorded</span></div>',unsafe_allow_html=True)
 
 
@@ -179,9 +182,16 @@ def show_decision_package(case):
     for col,(num,title,value) in zip(cols,sections):
         with col:
             st.markdown(f'<div class="decision-card"><div class="number">{html(num)}</div><div class="decision-head">{html(title)}</div><p>{html(value)}</p></div>',unsafe_allow_html=True)
-    if package["escalation_triggers"]:
-        with st.expander("Why human review was required — recorded escalation reasons"):
-            for trigger in package["escalation_triggers"]:render_event_line(trigger)
+    oversight=oversight_status(case)
+    with st.expander("Recorded oversight outcome and explanation", expanded=True):
+        st.markdown(f"**{oversight['headline']}**")
+        st.write(oversight['explanation'])
+        for reason in oversight['reasons']:
+            st.write("• "+reason)
+        if oversight['benchmark_disagrees']:
+            expected='YES' if oversight['benchmark_expected'] else 'NO'
+            actual='YES' if oversight['escalated'] else 'NO'
+            st.warning(f"**Benchmark discrepancy:** recorded escalation = {actual}; expected ground-truth escalation = {expected}. This is a result of this captured AI execution, not a display error or verified correct decision.")
     st.caption("All outcomes are recorded recommendations, handling instructions, draft communications and routing decisions. The replay does not execute deliveries, contact customers or notify supervisors.")
 
 
@@ -284,7 +294,7 @@ def stories():
     with b:
         st.markdown('**One issue. A Critic objection. A corrected recommendation.**')
         st.write('This silent captioned reconstruction follows SHP-006 from its initial proposal through REVISE and final ACCEPT, then the customer communication review. It uses only the new captured execution.')
-        st.caption('The video is an edited explanation, NOT live inference. SHP-006 took 12.74 seconds in the new LangSmith capture; the video length is unrelated to that duration.')
+        st.caption(f"The video is an edited explanation, NOT live inference. SHP-006 took {case_by_id['SHP-006']['metrics']['latency_seconds']:.2f} seconds in this capture; film duration is separate from execution time.")
 
 
 def agent_replay():
@@ -294,10 +304,10 @@ def agent_replay():
     heading('01 / SELECT A RECORDING','Compare acceptance, revisions and escalation')
     case=case_by_id[case_selector()]
     case_summary(case)
-    st.markdown('<div class="feature"><strong>Try these contrasting cases:</strong> SHP-003: two Resolution Critic revisions before escalation. SHP-006: a revision followed by ACCEPT. SHP-004: resolution accepted, but human oversight remains required. SHP-007: Communication Critic escalated. Routine cases SHP-001 and SHP-010 bypass LLMs.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="feature"><strong>Try these contrasting cases:</strong> SHP-003: resolution ACCEPT with no human escalation. SHP-004: two resolution revisions, then escalation. SHP-006 and SHP-008: REVISE followed by ACCEPT. SHP-007: Communication Critic escalated. Routine cases SHP-001 and SHP-010 bypass LLMs.</div>', unsafe_allow_html=True)
     heading('02 / AGENT-TO-AGENT REPLAY','Original stage order, captured output and measured durations')
     components.html(build_replay_html(case),height=790,scrolling=False)
-    st.caption('Each node movement follows an actual saved LangSmith stage event. Recorded seconds measure each stage; the on-screen animation is played at visitor-controlled speed.')
+    st.caption('Quick overview remains the default (6–25 seconds per event). Comfortable now allows 30–120 seconds; Extra reading time allows 60–240 seconds per event. You can pause or use Manual. These are **reading pauses**, not the measured LangSmith stage durations.')
     heading('03 / REVIEW EVIDENCE','View the original objections and revised proposals')
     show_critic_audit(case)
     show_communication_caveat(case)
@@ -313,6 +323,9 @@ def evidence():
     case=case_by_id[case_selector()]
     case_summary(case)
     show_decision_package(case)
+    errors=case['trace_summary'].get('recovered_error_spans',0)
+    if errors:
+        st.info(f'The original LangSmith trace recorded {errors} internal validation-error subspans which were recovered by the workflow. The case completed and its notebook assessment passed; private error details are not included in the public replay.')
     tabs=st.tabs(["Agent & Critic decisions","Critic review audit","Tools & controls","Policy provenance","Customer draft","Redacted stage history"])
     with tabs[0]:
         a,b=st.columns(2,gap="large")
@@ -373,30 +386,48 @@ def evidence():
 
 def results():
     hero("Results / Current recorded capture", "Measured traces. Clear boundaries.",
-         "The October 17 rerun preserved ten LangSmith traces with complete root events, stage-level timings and independent Critic evidence. This is execution observability, not a new benchmark validation report.")
-    note("The earlier run's reported 100% task/tool scores and 5/5 coherence score are NOT carried over as new independently assessed outcomes. They would require evaluation results from the current rerun.")
+         "The latest October 17 execution has ten recorded LangSmith traces and ten individually scored notebook assessments. The captured evidence shows decisions and Critic feedback; the notebook evaluates those decisions against a curated benchmark.")
+    note("The assessment results below come from the uploaded executed notebook for THIS trace batch. All ten cases passed their applicable benchmark checks, but two received lower LLM-as-a-Judge coherence scores. Curated benchmarks do not establish production accuracy or speed gains.")
     heading('01 / RECORDED EXECUTION','What LangSmith actually measured')
     kpi_grid()
     heading('02 / THE TEN CASES','Duration and outcomes in the latest execution')
+    oversight_states=[oversight_status(c) for c in records['cases']]
+    n_escalated=sum(x['escalated'] for x in oversight_states)
+    n_routine=sum(x['routine'] for x in oversight_states)
+    n_no_escalation=sum(not x['escalated'] and not x['routine'] for x in oversight_states)
+    st.info(f"**Escalation breakdown:** {n_escalated} of 10 cases requested supervisor escalation; {n_no_escalation} exception(s) were handled without escalation; {n_routine} routine events bypassed agent review. Requests do not establish that a human reviewed or approved a case. These are curated scenarios, not a representative rate of escalations in live logistics operations.")
+    divergent=[c['id'] for c in records['cases'] if oversight_status(c)['benchmark_disagrees']]
+    if divergent:
+        st.warning(f"**Recorded outcome versus expected benchmark:** {', '.join(divergent)} differed on whether supervisor escalation was needed. The captured outcome is retained and not silently corrected.")
     df=pd.DataFrame(evaluation_rows(records))
     a,b=st.columns([1.15,.85],gap='large')
     with a:
         st.bar_chart(df.set_index('Shipment')[["Latency (s)"]],height=330,color='#ED6848')
-        st.caption('Root-span elapsed times from the new LangSmith capture. Routine cases took 0.017 and 0.018 seconds.')
+        st.caption('Root-span elapsed times from the latest capture. The two routine cases completed on the deterministic path without LLM resolution.')
     with b:
         st.markdown('#### Cases worth exploring')
-        st.write('**SHP-003 · 39.52s:** Two distinct REVISE decisions; the terminal Resolution Critic decision is ESCALATE.')
-        st.write('**SHP-006 · 12.74s:** REVISE → a new proposal → ACCEPT.')
-        st.write('**SHP-004 · 16.34s:** Critic ACCEPT; separate supervisor escalation based on policy.')
-        st.write('**SHP-007 · 28.83s:** Resolution accepted but Communication Critic ESCALATE.')
+        st.write(f"**SHP-003 · {case_by_id['SHP-003']['metrics']['latency_seconds']:.2f}s:** RESCHEDULE / no escalation — matches the expected benchmark outcome.")
+        st.write(f"**SHP-004 · {case_by_id['SHP-004']['metrics']['latency_seconds']:.2f}s:** Two Resolution Critic REVISE decisions and human escalation; Judge coherence 3/5.")
+        st.write(f"**SHP-005 · {case_by_id['SHP-005']['metrics']['latency_seconds']:.2f}s:** Locker-capacity constraint; Judge coherence 2/5.")
+        st.write(f"**SHP-006 · {case_by_id['SHP-006']['metrics']['latency_seconds']:.2f}s:** REVISE → ACCEPT without human escalation.")
+        st.write(f"**SHP-008 · {case_by_id['SHP-008']['metrics']['latency_seconds']:.2f}s:** REVISE → ACCEPT with discretionary escalation.")
         st.write(f"**Exception-only mean · {mean_exception_seconds:.2f}s:** Eight actionable cases, excluding two deterministic routine events.")
+    heading('03 / NOTEBOOK BENCHMARK', 'Recorded decisions versus expected outcomes')
+    b1,b2,b3=st.columns(3, gap='small')
+    with b1:kpi('10 / 10','Task checks passed','Ten curated scenarios from the executed notebook')
+    with b2:kpi('10 / 10','Tools checks passed','Notebook evaluator; not operational production validation')
+    with b3:kpi(f"{records['aggregate']['judge_mean_coherence']:.1f} / 5",'Mean Judge coherence','LLM-scored; SHP-004: 3/5, SHP-005: 2/5')
+    st.caption('For routine events, escalation and tone are N/A rather than PASS. Coherence is an LLM-as-a-Judge score, distinct from resolution accuracy and operational safety.')
+    recovered=sum(c['trace_summary'].get('recovered_error_spans',0) for c in cases)
+    if recovered:
+        st.info(f'{recovered} internal model/validation error spans were captured in SHP-004; the workflow recovered and its final notebook assessment passed. These are not zero-error traces. The private error payloads are not published.')
     st.dataframe(df,hide_index=True,use_container_width=True)
     st.download_button('Export the current trace summary',df.to_csv(index=False).encode('utf-8'),'delivery_exception_trace_results.csv','text/csv')
-    heading('03 / EVIDENCE MATURITY','What is and is not established')
+    heading('04 / EVIDENCE MATURITY','What is and is not established')
     cols=st.columns(3)
     for col,item in zip(cols,[
         ('01','Experimental scope','Ten curated scenarios demonstrate captured processing steps and constraints, not real-world production reliability or monetary savings.'),
-        ('02','Independent outcomes','Current-run outcome scoring against ground truth, tool correctness and LLM-as-a-Judge coherence must be evaluated separately.'),
+        ('02','Independent outcomes','The notebook scored this specific run against its curated ground truth and provided LLM-as-a-Judge coherence. These checks are not external operational certification.'),
         ('03','Decision authority','Agent ACCEPT is not customer authorisation, supervisor approval or evidence that a delivery instruction was executed.')
     ]):
         with col:card(*item)
@@ -411,4 +442,14 @@ elif page=="Case stories":stories()
 elif page=="Agent flow":agent_replay()
 elif page=="Evidence room":evidence()
 else:results()
-st.markdown('<div class="footer-note"><strong>EXCEPTION / CONTROL</strong> &nbsp; · &nbsp; Completed multi-agent AI proof of concept &nbsp; / &nbsp; Recorded evidence replay. No live model, external API, real customer action or private playbook content is hosted in this presentation.</div>',unsafe_allow_html=True)
+st.markdown(f'''<div class="footer-note">
+  <div class="footer-description">
+    <div class="footer-heading">EXCEPTION / CONTROL</div>
+    <p>Completed multi-agent AI proof of concept · Recorded evidence replay.<br>
+       No live inference, external API calls or real customer actions take place in this demo.</p>
+  </div>
+  <div class="release-tag" aria-label="Application version {APP_VERSION}">
+    <div class="release-main"><span>APP VERSION</span><strong>v{APP_VERSION}</strong></div>
+    <div class="release-trace">TRACE · {html(TRACE_BATCH_LABEL)}</div>
+  </div>
+</div>''',unsafe_allow_html=True)

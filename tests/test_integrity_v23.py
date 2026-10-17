@@ -11,15 +11,16 @@ DATA=load_data()
 CASES={c['id']:c for c in DATA['cases']}
 
 def test_all_ten_current_cases_and_spans():
- assert len(CASES)==10 and DATA['aggregate']['total_spans']==428
- assert DATA['aggregate']['mean_latency_seconds']==16.41
- assert DATA['aggregate']['mean_exception_latency_seconds']==20.51
+ assert len(CASES)==10 and DATA['aggregate']['total_spans']==446
+ assert DATA['aggregate']['mean_latency_seconds']==21.02
+ assert DATA['aggregate']['mean_exception_latency_seconds']==26.27
  assert len(evaluation_rows(DATA))==10
 
 def test_new_revision_sequences():
- assert [x['verdict'] for x in critic_timeline(CASES['SHP-003'])['resolution_reviews']]==['REVISE','REVISE']
+ assert [x['verdict'] for x in critic_timeline(CASES['SHP-003'])['resolution_reviews']]==['ACCEPT']
+ assert [x['verdict'] for x in critic_timeline(CASES['SHP-004'])['resolution_reviews']]==['REVISE','REVISE']
  assert [x['verdict'] for x in critic_timeline(CASES['SHP-006'])['resolution_reviews']]==['REVISE','ACCEPT']
- assert [x['verdict'] for x in critic_timeline(CASES['SHP-004'])['resolution_reviews']]==['ACCEPT']
+ assert [x['verdict'] for x in critic_timeline(CASES['SHP-008'])['resolution_reviews']]==['REVISE','ACCEPT']
  assert critic_timeline(CASES['SHP-007'])['communication_reviews'][0]['verdict']=='ESCALATE'
 
 def test_all_critic_rationales_captured_and_previous_proposals_linked():
@@ -73,10 +74,10 @@ def test_public_data_allowlisted_and_no_known_identifiers():
 
 def test_current_evaluation_not_mislabeled():
  app=(ROOT/'app.py').read_text()
- assert '16.41' in app or 'mean_latency_seconds' in app
- assert 'not carried over' in app.lower()
- assert 'Task completion' not in app
- assert '5 / 5' not in app
+ assert 'mean_latency_seconds' in app
+ assert 'THIS trace batch' in app
+ assert 'judge_mean_coherence' in app
+ assert 'production accuracy' in app
 
 def test_web_app_no_llm_or_extra_server_dependencies():
  req=(ROOT/'requirements.txt').read_text().lower()

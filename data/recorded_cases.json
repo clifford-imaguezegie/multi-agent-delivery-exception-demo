@@ -7,10 +7,13 @@
     "cases": 10,
     "exception_cases": 8,
     "complete_traces": 10,
-    "total_spans": 428,
-    "mean_latency_seconds": 16.41,
-    "mean_exception_latency_seconds": 20.51,
-    "legacy_evaluation_not_reattached": true
+    "total_spans": 446,
+    "mean_latency_seconds": 21.02,
+    "mean_exception_latency_seconds": 26.27,
+    "benchmarked_cases": 10,
+    "test_cases_passing_task": 10,
+    "judge_mean_coherence": 4.5,
+    "benchmarks_evaluated_with_notebook": true
   },
   "cases": [
     {
@@ -57,7 +60,7 @@
       "communication_agent": {},
       "communication_critic": {},
       "metrics": {
-        "latency_seconds": 0.017
+        "latency_seconds": 0.015
       },
       "trajectory": [
         "preprocessor: Normalised event; routine event",
@@ -68,34 +71,50 @@
         {
           "index": 1,
           "node": "preprocessor",
-          "start_offset_seconds": 0.002,
-          "duration_seconds": 0.004,
+          "start_offset_seconds": 0.001,
+          "duration_seconds": 0.002,
           "summary": "Normalised event; routine event"
         },
         {
           "index": 2,
           "node": "orchestrator",
-          "start_offset_seconds": 0.009,
-          "duration_seconds": 0.002,
+          "start_offset_seconds": 0.005,
+          "duration_seconds": 0.004,
           "summary": "Routes to finalize"
         },
         {
           "index": 3,
           "node": "finalize",
-          "start_offset_seconds": 0.013,
-          "duration_seconds": 0.001,
+          "start_offset_seconds": 0.01,
+          "duration_seconds": 0.002,
           "summary": "Recorded final decision · N/A"
         }
       ],
       "trace_summary": {
         "spans_recorded": 10,
         "root_completed": true,
+        "recovered_error_spans": 0,
         "source": "LangSmith per-case trace export",
         "captured_at": "2026-10-17"
       },
       "tool_calls": [],
       "playbook_references": [],
-      "citation_pages": []
+      "citation_pages": [],
+      "benchmark_assessment": {
+        "checks": {
+          "Task": "PASS",
+          "Exception": "PASS",
+          "Resolution": "PASS",
+          "Escalation": "N/A",
+          "Tone": "N/A",
+          "Tools": "PASS"
+        },
+        "coherence_score": 5,
+        "judge_scale": 5,
+        "revisions": 0,
+        "notebook_latency_seconds": 0.01,
+        "source": "Executed end-to-end notebook: individual test assessment"
+      }
     },
     {
       "id": "SHP-002",
@@ -140,22 +159,22 @@
         "is_exception": "YES",
         "resolution": "RESCHEDULE",
         "operational_action": "HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER",
-        "rationale": "The delivery event is a second failed attempt due to the customer not being home. According to the playbook for VIP customers on a second attempt, the driver should be proactive by offering options (confirming a third attempt or rerouting to a locker). Additionally, because the customer is a VIP with 5 exceptions in the last 90 days (exceeding the threshold of 3), the playbook requires flagging this to a supervisor. Since the only available locker (LOC-003) is marked as 'FULL' and 'not eligible', REROUTE_TO_LOCKER cannot be selected. Therefore, the shipment must be held at the depot while the customer is contacted to coordinate the next step, and the case must be escalated for supervisor review due to the high exception frequency."
+        "rationale": "The delivery event is a second failed attempt due to the customer not being home. According to the playbook for VIP customers on a second attempt, the driver should be proactive by offering options (confirming a third attempt or rerouting to a locker). Additionally, because the customer is a VIP with 5 exceptions in the last 90 days (exceeding the threshold of 3), the playbook requires flagging this to a supervisor. Since the only available locker (LOC-003) is FULL and ineligible, REROUTE_TO_LOCKER cannot be selected. Therefore, the shipment must be held at the depot while the customer is contacted to coordinate the next step, and the case must be escalated."
       },
       "resolution_critic": {
         "decision": "ACCEPT",
-        "rationale": "The exception classification is supported by the delivery event (second failed attempt). The final resolution 'RESCHEDULE' is appropriate as the playbook allows for a third attempt upon customer confirmation. The operational_action 'HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER' correctly reflects the immediate requirement to notify the VIP customer of their options (third attempt or locker) and the need to flag the case to a supervisor due to the customer's exception history (>3 in 90 days). The agent correctly identified that REROUTE_TO_LOCKER is not currently executable because the only available locker is full. The resolution and operational action are logically compatible."
+        "rationale": "The exception classification is correct (second failed delivery attempt). The final resolution (RESCHEDULE) is supported by the playbook, which allows for a third attempt after customer confirmation. The operational_action (HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER) is appropriate as the playbook requires notifying the VIP customer of their options (confirming a third attempt or rerouting) before proceeding. The agent correctly identified that REROUTE_TO_LOCKER is not currently executable due to the only available locker being full. The rationale correctly accounts for the VIP tier and the exception history trigger for supervisor flagging."
       },
       "communication_agent": {
         "tone_label": "FORMAL",
-        "communication_message": "Dear [CUSTOMER],\n\nWe are contacting you regarding your recent delivery attempt. Our driver attempted to deliver your package again today, but as no one was available to receive it, a second notice has been left.\n\nTo ensure your shipment is handled correctly, we need to coordinate the next steps with you. Your package is currently being held at our depot while we await your instructions. Please contact us to confirm how you would like to proceed.\n\nOnce we have coordinated these details with you, we will arrange another delivery attempt.\n\nWe apologize for any inconvenience this may have caused."
+        "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that a second attempt to deliver your package was unsuccessful as no one was available to receive it. Please accept our apologies for any inconvenience this may have caused.\n\nTo ensure your delivery is successful, we need to coordinate the next steps with you. Your shipment is currently being held at our depot. Once you have contacted us to confirm your availability or preferred delivery instructions, we will arrange for another delivery attempt to be made.\n\nThank you for your patience."
       },
       "communication_critic": {
         "decision": "ACCEPT",
-        "rationale": "The message accurately reflects the approved resolution (RESCHEDULE/HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER) and the status of the second delivery attempt. The tone is formal, which is correct for a VIP customer, and the channel is appropriate for email. It does not invent any unsupported dates or commitments."
+        "rationale": "The message accurately reflects the approved resolution (RESCHEDULE/HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER), uses a formal tone appropriate for a VIP customer, and avoids inventing specific dates or unsupported promises. It clearly explains the issue without using internal terminology."
       },
       "metrics": {
-        "latency_seconds": 17.027
+        "latency_seconds": 17.466
       },
       "trajectory": [
         "preprocessor: Normalised event; exception identified",
@@ -175,123 +194,139 @@
           "index": 1,
           "node": "preprocessor",
           "start_offset_seconds": 0.004,
-          "duration_seconds": 0.055,
+          "duration_seconds": 0.043,
           "summary": "Normalised event; exception identified"
         },
         {
           "index": 2,
           "node": "orchestrator",
-          "start_offset_seconds": 0.061,
-          "duration_seconds": 0.006,
+          "start_offset_seconds": 0.049,
+          "duration_seconds": 0.002,
           "summary": "Routes to resolution agent"
         },
         {
           "index": 3,
           "node": "resolution_agent",
-          "start_offset_seconds": 0.07,
-          "duration_seconds": 3.712,
+          "start_offset_seconds": 0.053,
+          "duration_seconds": 6.159,
           "proposal": {
             "is_exception": "YES",
             "resolution": "RESCHEDULE",
             "operational_action": "HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER",
-            "rationale": "The delivery event is a second failed attempt due to the customer not being home. According to the playbook for VIP customers on a second attempt, the driver should be proactive by offering options (confirming a third attempt or rerouting to a locker). Additionally, because the customer is a VIP with 5 exceptions in the last 90 days (exceeding the threshold of 3), the playbook requires flagging this to a supervisor. Since the only available locker (LOC-003) is marked as 'FULL' and 'not eligible', REROUTE_TO_LOCKER cannot be selected. Therefore, the shipment must be held at the depot while the customer is contacted to coordinate the next step, and the case must be escalated for supervisor review due to the high exception frequency."
+            "rationale": "The delivery event is a second failed attempt due to the customer not being home. According to the playbook for VIP customers on a second attempt, the driver should be proactive by offering options (confirming a third attempt or rerouting to a locker). Additionally, because the customer is a VIP with 5 exceptions in the last 90 days (exceeding the threshold of 3), the playbook requires flagging this to a supervisor. Since the only available locker (LOC-003) is FULL and ineligible, REROUTE_TO_LOCKER cannot be selected. Therefore, the shipment must be held at the depot while the customer is contacted to coordinate the next step, and the case must be escalated."
           },
           "summary": "Proposed reschedule · hold at depot and contact customer"
         },
         {
           "index": 4,
           "node": "orchestrator",
-          "start_offset_seconds": 3.784,
-          "duration_seconds": 0.005,
+          "start_offset_seconds": 6.215,
+          "duration_seconds": 0.003,
           "summary": "Routes to critic resolution"
         },
         {
           "index": 5,
           "node": "critic_resolution",
-          "start_offset_seconds": 3.792,
-          "duration_seconds": 4.283,
+          "start_offset_seconds": 6.22,
+          "duration_seconds": 5.169,
           "review": {
             "decision": "ACCEPT",
-            "rationale": "The exception classification is supported by the delivery event (second failed attempt). The final resolution 'RESCHEDULE' is appropriate as the playbook allows for a third attempt upon customer confirmation. The operational_action 'HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER' correctly reflects the immediate requirement to notify the VIP customer of their options (third attempt or locker) and the need to flag the case to a supervisor due to the customer's exception history (>3 in 90 days). The agent correctly identified that REROUTE_TO_LOCKER is not currently executable because the only available locker is full. The resolution and operational action are logically compatible."
+            "rationale": "The exception classification is correct (second failed delivery attempt). The final resolution (RESCHEDULE) is supported by the playbook, which allows for a third attempt after customer confirmation. The operational_action (HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER) is appropriate as the playbook requires notifying the VIP customer of their options (confirming a third attempt or rerouting) before proceeding. The agent correctly identified that REROUTE_TO_LOCKER is not currently executable due to the only available locker being full. The rationale correctly accounts for the VIP tier and the exception history trigger for supervisor flagging."
           },
           "reviewed_proposal": {
             "is_exception": "YES",
             "resolution": "RESCHEDULE",
             "operational_action": "HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER",
-            "rationale": "The delivery event is a second failed attempt due to the customer not being home. According to the playbook for VIP customers on a second attempt, the driver should be proactive by offering options (confirming a third attempt or rerouting to a locker). Additionally, because the customer is a VIP with 5 exceptions in the last 90 days (exceeding the threshold of 3), the playbook requires flagging this to a supervisor. Since the only available locker (LOC-003) is marked as 'FULL' and 'not eligible', REROUTE_TO_LOCKER cannot be selected. Therefore, the shipment must be held at the depot while the customer is contacted to coordinate the next step, and the case must be escalated for supervisor review due to the high exception frequency."
+            "rationale": "The delivery event is a second failed attempt due to the customer not being home. According to the playbook for VIP customers on a second attempt, the driver should be proactive by offering options (confirming a third attempt or rerouting to a locker). Additionally, because the customer is a VIP with 5 exceptions in the last 90 days (exceeding the threshold of 3), the playbook requires flagging this to a supervisor. Since the only available locker (LOC-003) is FULL and ineligible, REROUTE_TO_LOCKER cannot be selected. Therefore, the shipment must be held at the depot while the customer is contacted to coordinate the next step, and the case must be escalated."
           },
           "summary": "Resolution Critic: ACCEPT"
         },
         {
           "index": 6,
           "node": "orchestrator",
-          "start_offset_seconds": 8.076,
+          "start_offset_seconds": 11.391,
           "duration_seconds": 0.004,
           "summary": "Routes to communication agent"
         },
         {
           "index": 7,
           "node": "communication_agent",
-          "start_offset_seconds": 8.089,
-          "duration_seconds": 6.643,
+          "start_offset_seconds": 11.397,
+          "duration_seconds": 3.156,
           "draft": {
             "tone_label": "FORMAL",
-            "communication_message": "Dear [CUSTOMER],\n\nWe are contacting you regarding your recent delivery attempt. Our driver attempted to deliver your package again today, but as no one was available to receive it, a second notice has been left.\n\nTo ensure your shipment is handled correctly, we need to coordinate the next steps with you. Your package is currently being held at our depot while we await your instructions. Please contact us to confirm how you would like to proceed.\n\nOnce we have coordinated these details with you, we will arrange another delivery attempt.\n\nWe apologize for any inconvenience this may have caused."
+            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that a second attempt to deliver your package was unsuccessful as no one was available to receive it. Please accept our apologies for any inconvenience this may have caused.\n\nTo ensure your delivery is successful, we need to coordinate the next steps with you. Your shipment is currently being held at our depot. Once you have contacted us to confirm your availability or preferred delivery instructions, we will arrange for another delivery attempt to be made.\n\nThank you for your patience."
           },
           "summary": "Prepared an unsent customer draft"
         },
         {
           "index": 8,
           "node": "orchestrator",
-          "start_offset_seconds": 14.734,
-          "duration_seconds": 0.004,
+          "start_offset_seconds": 14.555,
+          "duration_seconds": 0.002,
           "summary": "Routes to critic communication"
         },
         {
           "index": 9,
           "node": "critic_communication",
-          "start_offset_seconds": 14.74,
-          "duration_seconds": 2.274,
+          "start_offset_seconds": 14.558,
+          "duration_seconds": 2.895,
           "review": {
             "decision": "ACCEPT",
-            "rationale": "The message accurately reflects the approved resolution (RESCHEDULE/HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER) and the status of the second delivery attempt. The tone is formal, which is correct for a VIP customer, and the channel is appropriate for email. It does not invent any unsupported dates or commitments."
+            "rationale": "The message accurately reflects the approved resolution (RESCHEDULE/HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER), uses a formal tone appropriate for a VIP customer, and avoids inventing specific dates or unsupported promises. It clearly explains the issue without using internal terminology."
           },
           "reviewed_draft": {
             "tone_label": "FORMAL",
-            "communication_message": "Dear [CUSTOMER],\n\nWe are contacting you regarding your recent delivery attempt. Our driver attempted to deliver your package again today, but as no one was available to receive it, a second notice has been left.\n\nTo ensure your shipment is handled correctly, we need to coordinate the next steps with you. Your package is currently being held at our depot while we await your instructions. Please contact us to confirm how you would like to proceed.\n\nOnce we have coordinated these details with you, we will arrange another delivery attempt.\n\nWe apologize for any inconvenience this may have caused."
+            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that a second attempt to deliver your package was unsuccessful as no one was available to receive it. Please accept our apologies for any inconvenience this may have caused.\n\nTo ensure your delivery is successful, we need to coordinate the next steps with you. Your shipment is currently being held at our depot. Once you have contacted us to confirm your availability or preferred delivery instructions, we will arrange for another delivery attempt to be made.\n\nThank you for your patience."
           },
           "summary": "Communication Critic: ACCEPT"
         },
         {
           "index": 10,
           "node": "orchestrator",
-          "start_offset_seconds": 17.015,
-          "duration_seconds": 0.003,
+          "start_offset_seconds": 17.455,
+          "duration_seconds": 0.004,
           "summary": "Routes to finalize"
         },
         {
           "index": 11,
           "node": "finalize",
-          "start_offset_seconds": 17.023,
-          "duration_seconds": 0.002,
+          "start_offset_seconds": 17.461,
+          "duration_seconds": 0.003,
           "summary": "Recorded final decision · RESCHEDULE"
         }
       ],
       "trace_summary": {
         "spans_recorded": 47,
         "root_completed": true,
+        "recovered_error_spans": 0,
         "source": "LangSmith per-case trace export",
         "captured_at": "2026-10-17"
       },
       "tool_calls": [
-        "lookup_customer_profile · 0.003s (recorded tool span; arguments hidden)",
-        "lookup_customer_profile · 0.003s (recorded tool span; arguments hidden)",
-        "check_locker_availability · 0.002s (recorded tool span; arguments hidden)",
-        "search_playbook · 0.039s (recorded tool span; arguments hidden)",
-        "check_escalation_rules · 0.002s (recorded tool span; arguments hidden)"
+        "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
+        "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
+        "check_locker_availability · 0.001s (recorded tool span; arguments hidden)",
+        "search_playbook · 0.031s (recorded tool span; arguments hidden)",
+        "check_escalation_rules · 0.001s (recorded tool span; arguments hidden)"
       ],
       "playbook_references": [],
-      "citation_pages": []
+      "citation_pages": [],
+      "benchmark_assessment": {
+        "checks": {
+          "Task": "PASS",
+          "Exception": "PASS",
+          "Resolution": "PASS",
+          "Escalation": "PASS",
+          "Tone": "PASS",
+          "Tools": "PASS"
+        },
+        "coherence_score": 5,
+        "judge_scale": 5,
+        "revisions": 0,
+        "notebook_latency_seconds": 17.46,
+        "source": "Executed end-to-end notebook: individual test assessment"
+      }
     },
     {
       "id": "SHP-003",
@@ -322,216 +357,184 @@
       },
       "final_action": {
         "is_exception": "YES",
-        "resolution": "RETURN_TO_SENDER",
-        "escalated": true,
+        "resolution": "RESCHEDULE",
+        "escalated": false,
         "tone": "CASUAL",
-        "revision_count": 2,
+        "revision_count": 0,
         "guardrail_blocked": false
       },
       "resolution_agent": {
         "is_exception": "YES",
-        "resolution": "RETURN_TO_SENDER",
+        "resolution": "RESCHEDULE",
         "operational_action": "HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER",
-        "rationale": "The delivery event reports a 'Building or Street Not Found' issue (Section 2), as the driver could not locate building [ADDRESS REDACTED] According to the playbook, this requires holding the shipment at the depot and contacting the customer to verify the address. The playbook specifies that if the customer does not respond within 48 hours, the shipment should be returned to sender. Since the supported resolution taxonomy does not include a 'HOLD_AND_VERIFY' action, and 'RESCHEDULE' is explicitly reserved for routine failed delivery attempts where the address is known (Section 1), 'RETURN_TO_SENDER' is the most appropriate final disposition provided in the supported list to represent the outcome of the verification protocol if the address cannot be confirmed."
+        "rationale": "The delivery event indicates an 'ADDRESS_ISSUE' where the building number could not be located. According to the playbook (Section 2: Building or Street Not Found), when a driver cannot locate the address, the shipment should be held at the depot and the customer contacted to verify or update the address. Since the playbook specifies a 48-hour window for response before returning to sender, the immediate appropriate resolution is to RESCHEDULE (representing the hold/redelivery attempt process) once the address is confirmed. Rerouting to a locker is not appropriate here as the primary issue is address verification, not delivery access."
       },
       "resolution_critic": {
-        "decision": "ESCALATE",
-        "rationale": "Max revision loops reached. Accepting current resolution with escalation."
+        "decision": "ACCEPT",
+        "rationale": "The exception classification (Address Issue) is supported by the delivery event. The operational_action (HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER) directly aligns with the playbook's requirement for 'Building or Street Not Found'. The final resolution (RESCHEDULE) is a logically compatible intended disposition, as the goal of address verification is to enable a successful redelivery. The agent correctly avoided prematurely selecting RETURN_TO_SENDER, as the 48-hour non-response condition has not yet occurred."
       },
       "communication_agent": {
         "tone_label": "CASUAL",
-        "communication_message": "Hi [CUSTOMER], we're sorry, but our driver couldn't find building [ADDRESS REDACTED] We need to verify your address before we can proceed. Please contact us to confirm your details; otherwise, your shipment will be returned to the sender."
+        "communication_message": "Hi [CUSTOMER], we had trouble finding building [ADDRESS REDACTED] during delivery. Please reply with your correct address so we can arrange another delivery attempt. Sorry for the trouble!"
       },
       "communication_critic": {
         "decision": "ACCEPT",
-        "rationale": "The message accurately reflects the address issue and the required action (verify address or return to sender). The tone is casual, which matches the STANDARD customer tier, and the channel is appropriate for SMS. No unsupported promises or internal terminology were used."
+        "rationale": "The message accurately reflects the resolution to verify the address due to a location issue, uses the correct casual tone for a STANDARD tier customer, is appropriate for SMS, and contains no unsupported promises or internal terminology."
       },
       "metrics": {
-        "latency_seconds": 39.522
+        "latency_seconds": 14.531
       },
       "trajectory": [
         "preprocessor: Normalised event; exception identified",
         "orchestrator: Routes to resolution agent",
         "resolution_agent: Proposed reschedule · hold at depot and contact customer",
         "orchestrator: Routes to critic resolution",
-        "critic_resolution: Resolution Critic: REVISE",
-        "orchestrator: Routes to resolution agent",
-        "resolution_agent: Proposed return to sender · hold at depot and contact customer",
-        "orchestrator: Routes to critic resolution",
-        "critic_resolution: Resolution Critic: REVISE",
+        "critic_resolution: Resolution Critic: ACCEPT",
         "orchestrator: Routes to communication agent",
         "communication_agent: Prepared an unsent customer draft",
         "orchestrator: Routes to critic communication",
         "critic_communication: Communication Critic: ACCEPT",
         "orchestrator: Routes to finalize",
-        "finalize: Recorded final decision · RETURN TO SENDER"
+        "finalize: Recorded final decision · RESCHEDULE"
       ],
       "agent_events": [
         {
           "index": 1,
           "node": "preprocessor",
-          "start_offset_seconds": 0.005,
-          "duration_seconds": 0.043,
+          "start_offset_seconds": 0.002,
+          "duration_seconds": 0.036,
           "summary": "Normalised event; exception identified"
         },
         {
           "index": 2,
           "node": "orchestrator",
-          "start_offset_seconds": 0.049,
+          "start_offset_seconds": 0.039,
           "duration_seconds": 0.002,
           "summary": "Routes to resolution agent"
         },
         {
           "index": 3,
           "node": "resolution_agent",
-          "start_offset_seconds": 0.053,
-          "duration_seconds": 8.933,
+          "start_offset_seconds": 0.043,
+          "duration_seconds": 6.506,
           "proposal": {
             "is_exception": "YES",
             "resolution": "RESCHEDULE",
             "operational_action": "HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER",
-            "rationale": "The delivery event is an ADDRESS_ISSUE where the driver cannot locate the building. According to the playbook (Section 2: Address Mismatches), when a building or street is not found, the shipment should be held at the depot and the customer contacted to verify or update the address. While the playbook ultimately leads to a RETURN_TO_SENDER if the customer does not respond within 48 hours, the immediate required operational action is to hold and contact the customer for verification. Since the shipment is currently at the first attempt and requires a follow-up action to resolve the address discrepancy before a return can be triggered, RESCHEDULE is the most appropriate supported resolution to facilitate the next step of the verification/redelivery process."
+            "rationale": "The delivery event indicates an 'ADDRESS_ISSUE' where the building number could not be located. According to the playbook (Section 2: Building or Street Not Found), when a driver cannot locate the address, the shipment should be held at the depot and the customer contacted to verify or update the address. Since the playbook specifies a 48-hour window for response before returning to sender, the immediate appropriate resolution is to RESCHEDULE (representing the hold/redelivery attempt process) once the address is confirmed. Rerouting to a locker is not appropriate here as the primary issue is address verification, not delivery access."
           },
           "summary": "Proposed reschedule · hold at depot and contact customer"
         },
         {
           "index": 4,
           "node": "orchestrator",
-          "start_offset_seconds": 8.989,
-          "duration_seconds": 0.007,
+          "start_offset_seconds": 6.551,
+          "duration_seconds": 0.004,
           "summary": "Routes to critic resolution"
         },
         {
           "index": 5,
           "node": "critic_resolution",
-          "start_offset_seconds": 8.998,
-          "duration_seconds": 7.329,
+          "start_offset_seconds": 6.557,
+          "duration_seconds": 4.045,
           "review": {
-            "decision": "REVISE",
-            "rationale": "The Resolution Agent has selected RESCHEDULE as the final resolution. However, the playbook for 'Building or Street Not Found' (Section 2) explicitly requires holding the shipment and contacting the customer to verify the address. RESCHEDULE is only supported for routine failed delivery attempts (Section 1) where the address is known but delivery was unsuccessful. In this case, the address is unknown/unverifiable. The final resolution should reflect the intended disposition based on the outcome of the verification process (e.g., redelivery if verified, or return-to-sender if not), but RESCHEDULE is premature and not supported by the 'Building or Street Not Found' protocol, which prioritizes verification over automatic rescheduling."
+            "decision": "ACCEPT",
+            "rationale": "The exception classification (Address Issue) is supported by the delivery event. The operational_action (HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER) directly aligns with the playbook's requirement for 'Building or Street Not Found'. The final resolution (RESCHEDULE) is a logically compatible intended disposition, as the goal of address verification is to enable a successful redelivery. The agent correctly avoided prematurely selecting RETURN_TO_SENDER, as the 48-hour non-response condition has not yet occurred."
           },
           "reviewed_proposal": {
             "is_exception": "YES",
             "resolution": "RESCHEDULE",
             "operational_action": "HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER",
-            "rationale": "The delivery event is an ADDRESS_ISSUE where the driver cannot locate the building. According to the playbook (Section 2: Address Mismatches), when a building or street is not found, the shipment should be held at the depot and the customer contacted to verify or update the address. While the playbook ultimately leads to a RETURN_TO_SENDER if the customer does not respond within 48 hours, the immediate required operational action is to hold and contact the customer for verification. Since the shipment is currently at the first attempt and requires a follow-up action to resolve the address discrepancy before a return can be triggered, RESCHEDULE is the most appropriate supported resolution to facilitate the next step of the verification/redelivery process."
+            "rationale": "The delivery event indicates an 'ADDRESS_ISSUE' where the building number could not be located. According to the playbook (Section 2: Building or Street Not Found), when a driver cannot locate the address, the shipment should be held at the depot and the customer contacted to verify or update the address. Since the playbook specifies a 48-hour window for response before returning to sender, the immediate appropriate resolution is to RESCHEDULE (representing the hold/redelivery attempt process) once the address is confirmed. Rerouting to a locker is not appropriate here as the primary issue is address verification, not delivery access."
           },
-          "summary": "Resolution Critic: REVISE"
+          "summary": "Resolution Critic: ACCEPT"
         },
         {
           "index": 6,
           "node": "orchestrator",
-          "start_offset_seconds": 16.328,
+          "start_offset_seconds": 10.603,
           "duration_seconds": 0.002,
-          "summary": "Routes to resolution agent"
-        },
-        {
-          "index": 7,
-          "node": "resolution_agent",
-          "start_offset_seconds": 16.334,
-          "duration_seconds": 4.346,
-          "proposal": {
-            "is_exception": "YES",
-            "resolution": "RETURN_TO_SENDER",
-            "operational_action": "HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER",
-            "rationale": "The delivery event reports a 'Building or Street Not Found' issue (Section 2), as the driver could not locate building [ADDRESS REDACTED] According to the playbook, this requires holding the shipment at the depot and contacting the customer to verify the address. The playbook specifies that if the customer does not respond within 48 hours, the shipment should be returned to sender. Since the supported resolution taxonomy does not include a 'HOLD_AND_VERIFY' action, and 'RESCHEDULE' is explicitly reserved for routine failed delivery attempts where the address is known (Section 1), 'RETURN_TO_SENDER' is the most appropriate final disposition provided in the supported list to represent the outcome of the verification protocol if the address cannot be confirmed."
-          },
-          "summary": "Proposed return to sender · hold at depot and contact customer"
-        },
-        {
-          "index": 8,
-          "node": "orchestrator",
-          "start_offset_seconds": 20.683,
-          "duration_seconds": 0.004,
-          "summary": "Routes to critic resolution"
-        },
-        {
-          "index": 9,
-          "node": "critic_resolution",
-          "start_offset_seconds": 20.689,
-          "duration_seconds": 7.288,
-          "review": {
-            "decision": "REVISE",
-            "rationale": "The Resolution Agent has prematurely selected 'RETURN_TO_SENDER' as the final resolution. According to the playbook for 'Building or Street Not Found', the shipment must first be held and the customer contacted, with a 48-hour window for them to respond. 'RETURN_TO_SENDER' is a conditional future action that only becomes applicable if the customer fails to respond within that period. Since the delivery event just occurred and the 48-hour window has not elapsed, this resolution is premature. The agent should select a resolution that reflects the current intended disposition (such as RESCHEDULE or a similar placeholder for a successful verification) or identify that the final disposition is pending the outcome of the operational action."
-          },
-          "reviewed_proposal": {
-            "is_exception": "YES",
-            "resolution": "RETURN_TO_SENDER",
-            "operational_action": "HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER",
-            "rationale": "The delivery event reports a 'Building or Street Not Found' issue (Section 2), as the driver could not locate building [ADDRESS REDACTED] According to the playbook, this requires holding the shipment at the depot and contacting the customer to verify the address. The playbook specifies that if the customer does not respond within 48 hours, the shipment should be returned to sender. Since the supported resolution taxonomy does not include a 'HOLD_AND_VERIFY' action, and 'RESCHEDULE' is explicitly reserved for routine failed delivery attempts where the address is known (Section 1), 'RETURN_TO_SENDER' is the most appropriate final disposition provided in the supported list to represent the outcome of the verification protocol if the address cannot be confirmed."
-          },
-          "summary": "Resolution Critic: REVISE"
-        },
-        {
-          "index": 10,
-          "node": "orchestrator",
-          "start_offset_seconds": 27.979,
-          "duration_seconds": 0.004,
           "summary": "Routes to communication agent"
         },
         {
-          "index": 11,
+          "index": 7,
           "node": "communication_agent",
-          "start_offset_seconds": 27.985,
-          "duration_seconds": 3.108,
+          "start_offset_seconds": 10.607,
+          "duration_seconds": 1.617,
           "draft": {
             "tone_label": "CASUAL",
-            "communication_message": "Hi [CUSTOMER], we're sorry, but our driver couldn't find building [ADDRESS REDACTED] We need to verify your address before we can proceed. Please contact us to confirm your details; otherwise, your shipment will be returned to the sender."
+            "communication_message": "Hi [CUSTOMER], we had trouble finding building [ADDRESS REDACTED] during delivery. Please reply with your correct address so we can arrange another delivery attempt. Sorry for the trouble!"
           },
           "summary": "Prepared an unsent customer draft"
         },
         {
-          "index": 12,
+          "index": 8,
           "node": "orchestrator",
-          "start_offset_seconds": 31.095,
-          "duration_seconds": 0.003,
+          "start_offset_seconds": 12.225,
+          "duration_seconds": 0.002,
           "summary": "Routes to critic communication"
         },
         {
-          "index": 13,
+          "index": 9,
           "node": "critic_communication",
-          "start_offset_seconds": 31.099,
-          "duration_seconds": 8.408,
+          "start_offset_seconds": 12.23,
+          "duration_seconds": 2.285,
           "review": {
             "decision": "ACCEPT",
-            "rationale": "The message accurately reflects the address issue and the required action (verify address or return to sender). The tone is casual, which matches the STANDARD customer tier, and the channel is appropriate for SMS. No unsupported promises or internal terminology were used."
+            "rationale": "The message accurately reflects the resolution to verify the address due to a location issue, uses the correct casual tone for a STANDARD tier customer, is appropriate for SMS, and contains no unsupported promises or internal terminology."
           },
           "reviewed_draft": {
             "tone_label": "CASUAL",
-            "communication_message": "Hi [CUSTOMER], we're sorry, but our driver couldn't find building [ADDRESS REDACTED] We need to verify your address before we can proceed. Please contact us to confirm your details; otherwise, your shipment will be returned to the sender."
+            "communication_message": "Hi [CUSTOMER], we had trouble finding building [ADDRESS REDACTED] during delivery. Please reply with your correct address so we can arrange another delivery attempt. Sorry for the trouble!"
           },
           "summary": "Communication Critic: ACCEPT"
         },
         {
-          "index": 14,
+          "index": 10,
           "node": "orchestrator",
-          "start_offset_seconds": 39.509,
-          "duration_seconds": 0.002,
+          "start_offset_seconds": 14.516,
+          "duration_seconds": 0.004,
           "summary": "Routes to finalize"
         },
         {
-          "index": 15,
+          "index": 11,
           "node": "finalize",
-          "start_offset_seconds": 39.514,
-          "duration_seconds": 0.006,
-          "summary": "Recorded final decision · RETURN TO SENDER"
+          "start_offset_seconds": 14.523,
+          "duration_seconds": 0.004,
+          "summary": "Recorded final decision · RESCHEDULE"
         }
       ],
       "trace_summary": {
-        "spans_recorded": 63,
+        "spans_recorded": 47,
         "root_completed": true,
+        "recovered_error_spans": 0,
         "source": "LangSmith per-case trace export",
         "captured_at": "2026-10-17"
       },
       "tool_calls": [
         "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
-        "lookup_customer_profile · 0.001s (recorded tool span; arguments hidden)",
+        "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
         "check_locker_availability · 0.002s (recorded tool span; arguments hidden)",
-        "search_playbook · 0.031s (recorded tool span; arguments hidden)",
+        "search_playbook · 0.024s (recorded tool span; arguments hidden)",
         "check_escalation_rules · 0.001s (recorded tool span; arguments hidden)"
       ],
       "playbook_references": [],
-      "citation_pages": []
+      "citation_pages": [],
+      "benchmark_assessment": {
+        "checks": {
+          "Task": "PASS",
+          "Exception": "PASS",
+          "Resolution": "PASS",
+          "Escalation": "PASS",
+          "Tone": "PASS",
+          "Tools": "PASS"
+        },
+        "coherence_score": 5,
+        "judge_scale": 5,
+        "revisions": 0,
+        "notebook_latency_seconds": 14.52,
+        "source": "Executed end-to-end notebook: individual test assessment"
+      }
     },
     {
       "id": "SHP-004",
@@ -567,40 +570,44 @@
         "resolution": "REPLACE",
         "escalated": true,
         "tone": "FORMAL",
-        "revision_count": 0,
+        "revision_count": 2,
         "guardrail_blocked": false
       },
       "resolution_agent": {
         "is_exception": "YES",
         "resolution": "REPLACE",
         "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
-        "rationale": "The delivery event reports a crushed box with a visible dent. While the playbook classifies minor cosmetic damage as deliverable, the package is explicitly marked as 'FRAGILE'. According to the playbook, for fragile items, the threshold for damage is lowered, and what would be minor for a standard package should be treated as moderate damage. Moderate damage requires that the package not be delivered and should be pulled from the route. Given the package is fragile and shows visible damage, the appropriate action is to remove it from the route and hold it. Per the playbook for moderate damage, the customer should be offered a replacement. Therefore, REPLACE is the appropriate resolution."
+        "rationale": "The shipment is flagged as 'DAMAGED' with a crushed box and visible dent. Because the package is marked as 'FRAGILE', the playbook dictates that the threshold for damage is lowered and this should be treated as 'Moderate damage'. According to the playbook, moderate damage to a fragile item requires the package to be pulled from the route. The playbook specifies that for moderate damage, the customer must be offered a choice: deliver as-is or initiate a replacement. Therefore, the package must be held to prevent delivery until the customer is consulted. Since the final resolution depends on the customer's choice between delivery or replacement, 'REPLACE' is selected as the most appropriate supported resolution to initiate the process once the customer responds."
       },
       "resolution_critic": {
-        "decision": "ACCEPT",
-        "rationale": "The exception classification is supported by the delivery event (DAMAGED). The operational_action REMOVE_FROM_ROUTE_AND_HOLD is correct because the package is marked FRAGILE and has a crushed box/visible dent; the playbook explicitly states that for fragile items, the threshold is lowered and minor damage should be treated as moderate, requiring the package to be pulled. The final resolution REPLACE is supported as it is one of the two options provided in the playbook for moderate damage. The logic is consistent with the provided evidence and playbook guidance."
+        "decision": "ESCALATE",
+        "rationale": "Max revision loops reached. Accepting current resolution with escalation."
       },
       "communication_agent": {
         "tone_label": "FORMAL",
-        "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that during the delivery process, your package was identified as having sustained damage, specifically a crushed box with a visible dent. Given that your item is marked as fragile, we have taken the precaution of removing it from the delivery route to prevent any further issues.\n\nPlease accept our sincere apologies for this occurrence. We are currently arranging for a replacement to be sent to you.\n\nThank you for your patience."
+        "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that during the delivery process, your package was identified as having sustained damage. The box has a visible dent and appears crushed on one side.\n\nBecause your shipment contains fragile items, we have held the package to prevent delivery in its current condition. We would like to offer you the choice of receiving the shipment as-is or proceeding with a replacement. \n\nPlease let us know your preference. Once you have confirmed that you would like a replacement, we will immediately begin arranging for a new shipment to be sent to you.\n\nWe sincerely apologize for this inconvenience."
       },
       "communication_critic": {
-        "decision": "ACCEPT",
-        "rationale": "The message accurately reflects the approved resolution (REPLACE), uses the correct formal tone for a VIP customer, and clearly explains the issue without internal jargon. It does not invent any unsupported dates or commitments."
+        "decision": "ESCALATE",
+        "rationale": "The message contradicts the approved resolution. The resolution is explicitly set to 'REPLACE', but the message asks the customer to choose between receiving the item as-is or a replacement."
       },
       "metrics": {
-        "latency_seconds": 16.337
+        "latency_seconds": 29.041
       },
       "trajectory": [
         "preprocessor: Normalised event; exception identified",
         "orchestrator: Routes to resolution agent",
         "resolution_agent: Proposed replace · remove from route and hold",
         "orchestrator: Routes to critic resolution",
-        "critic_resolution: Resolution Critic: ACCEPT",
+        "critic_resolution: Resolution Critic: REVISE",
+        "orchestrator: Routes to resolution agent",
+        "resolution_agent: Proposed replace · remove from route and hold",
+        "orchestrator: Routes to critic resolution",
+        "critic_resolution: Resolution Critic: REVISE",
         "orchestrator: Routes to communication agent",
         "communication_agent: Prepared an unsent customer draft",
         "orchestrator: Routes to critic communication",
-        "critic_communication: Communication Critic: ACCEPT",
+        "critic_communication: Communication Critic: ESCALATE",
         "orchestrator: Routes to finalize",
         "finalize: Recorded final decision · REPLACE"
       ],
@@ -608,124 +615,184 @@
         {
           "index": 1,
           "node": "preprocessor",
-          "start_offset_seconds": 0.014,
-          "duration_seconds": 0.064,
+          "start_offset_seconds": 0.003,
+          "duration_seconds": 0.056,
           "summary": "Normalised event; exception identified"
         },
         {
           "index": 2,
           "node": "orchestrator",
-          "start_offset_seconds": 0.08,
+          "start_offset_seconds": 0.061,
           "duration_seconds": 0.004,
           "summary": "Routes to resolution agent"
         },
         {
           "index": 3,
           "node": "resolution_agent",
-          "start_offset_seconds": 0.086,
-          "duration_seconds": 3.53,
+          "start_offset_seconds": 0.067,
+          "duration_seconds": 3.841,
           "proposal": {
             "is_exception": "YES",
             "resolution": "REPLACE",
             "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
-            "rationale": "The delivery event reports a crushed box with a visible dent. While the playbook classifies minor cosmetic damage as deliverable, the package is explicitly marked as 'FRAGILE'. According to the playbook, for fragile items, the threshold for damage is lowered, and what would be minor for a standard package should be treated as moderate damage. Moderate damage requires that the package not be delivered and should be pulled from the route. Given the package is fragile and shows visible damage, the appropriate action is to remove it from the route and hold it. Per the playbook for moderate damage, the customer should be offered a replacement. Therefore, REPLACE is the appropriate resolution."
+            "rationale": "The delivery event reports a crushed box with a visible dent, which constitutes moderate damage. According to the playbook, moderate damage requires the package to be pulled from the route. Furthermore, because the package is marked as 'FRAGILE', the playbook dictates a lower threshold for damage, requiring the package to be pulled rather than delivered. Since the package must be pulled due to damage and the customer is a VIP, the appropriate resolution is to initiate a replacement. The package is held to prevent delivery of a potentially broken item."
           },
           "summary": "Proposed replace · remove from route and hold"
         },
         {
           "index": 4,
           "node": "orchestrator",
-          "start_offset_seconds": 3.621,
-          "duration_seconds": 0.008,
+          "start_offset_seconds": 3.912,
+          "duration_seconds": 0.004,
           "summary": "Routes to critic resolution"
         },
         {
           "index": 5,
           "node": "critic_resolution",
-          "start_offset_seconds": 3.633,
-          "duration_seconds": 5.612,
+          "start_offset_seconds": 3.916,
+          "duration_seconds": 5.768,
           "review": {
-            "decision": "ACCEPT",
-            "rationale": "The exception classification is supported by the delivery event (DAMAGED). The operational_action REMOVE_FROM_ROUTE_AND_HOLD is correct because the package is marked FRAGILE and has a crushed box/visible dent; the playbook explicitly states that for fragile items, the threshold is lowered and minor damage should be treated as moderate, requiring the package to be pulled. The final resolution REPLACE is supported as it is one of the two options provided in the playbook for moderate damage. The logic is consistent with the provided evidence and playbook guidance."
+            "decision": "REVISE",
+            "rationale": "The Resolution Agent selected 'REPLACE' as the final resolution. However, the playbook for 'Moderate damage' (which applies here given the crushed box and FRAGILE status) requires that the customer be notified and given a choice: either attempt delivery as-is if they accept the risk, or initiate a replacement. 'REPLACE' is a conditional future action that depends on the customer's choice and has not yet been triggered. The resolution should reflect the need for customer consultation/choice rather than prematurely deciding on a replacement."
           },
           "reviewed_proposal": {
             "is_exception": "YES",
             "resolution": "REPLACE",
             "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
-            "rationale": "The delivery event reports a crushed box with a visible dent. While the playbook classifies minor cosmetic damage as deliverable, the package is explicitly marked as 'FRAGILE'. According to the playbook, for fragile items, the threshold for damage is lowered, and what would be minor for a standard package should be treated as moderate damage. Moderate damage requires that the package not be delivered and should be pulled from the route. Given the package is fragile and shows visible damage, the appropriate action is to remove it from the route and hold it. Per the playbook for moderate damage, the customer should be offered a replacement. Therefore, REPLACE is the appropriate resolution."
+            "rationale": "The delivery event reports a crushed box with a visible dent, which constitutes moderate damage. According to the playbook, moderate damage requires the package to be pulled from the route. Furthermore, because the package is marked as 'FRAGILE', the playbook dictates a lower threshold for damage, requiring the package to be pulled rather than delivered. Since the package must be pulled due to damage and the customer is a VIP, the appropriate resolution is to initiate a replacement. The package is held to prevent delivery of a potentially broken item."
           },
-          "summary": "Resolution Critic: ACCEPT"
+          "summary": "Resolution Critic: REVISE"
         },
         {
           "index": 6,
           "node": "orchestrator",
-          "start_offset_seconds": 9.251,
-          "duration_seconds": 0.007,
-          "summary": "Routes to communication agent"
+          "start_offset_seconds": 9.686,
+          "duration_seconds": 0.002,
+          "summary": "Routes to resolution agent"
         },
         {
           "index": 7,
-          "node": "communication_agent",
-          "start_offset_seconds": 9.265,
-          "duration_seconds": 4.13,
-          "draft": {
-            "tone_label": "FORMAL",
-            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that during the delivery process, your package was identified as having sustained damage, specifically a crushed box with a visible dent. Given that your item is marked as fragile, we have taken the precaution of removing it from the delivery route to prevent any further issues.\n\nPlease accept our sincere apologies for this occurrence. We are currently arranging for a replacement to be sent to you.\n\nThank you for your patience."
+          "node": "resolution_agent",
+          "start_offset_seconds": 9.69,
+          "duration_seconds": 8.804,
+          "proposal": {
+            "is_exception": "YES",
+            "resolution": "REPLACE",
+            "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
+            "rationale": "The shipment is flagged as 'DAMAGED' with a crushed box and visible dent. Because the package is marked as 'FRAGILE', the playbook dictates that the threshold for damage is lowered and this should be treated as 'Moderate damage'. According to the playbook, moderate damage to a fragile item requires the package to be pulled from the route. The playbook specifies that for moderate damage, the customer must be offered a choice: deliver as-is or initiate a replacement. Therefore, the package must be held to prevent delivery until the customer is consulted. Since the final resolution depends on the customer's choice between delivery or replacement, 'REPLACE' is selected as the most appropriate supported resolution to initiate the process once the customer responds."
           },
-          "summary": "Prepared an unsent customer draft"
+          "summary": "Proposed replace · remove from route and hold"
         },
         {
           "index": 8,
           "node": "orchestrator",
-          "start_offset_seconds": 13.397,
-          "duration_seconds": 0.003,
-          "summary": "Routes to critic communication"
+          "start_offset_seconds": 18.499,
+          "duration_seconds": 0.004,
+          "summary": "Routes to critic resolution"
         },
         {
           "index": 9,
-          "node": "critic_communication",
-          "start_offset_seconds": 13.403,
-          "duration_seconds": 2.922,
+          "node": "critic_resolution",
+          "start_offset_seconds": 18.504,
+          "duration_seconds": 5.627,
           "review": {
-            "decision": "ACCEPT",
-            "rationale": "The message accurately reflects the approved resolution (REPLACE), uses the correct formal tone for a VIP customer, and clearly explains the issue without internal jargon. It does not invent any unsupported dates or commitments."
+            "decision": "REVISE",
+            "rationale": "The Resolution Agent has prematurely selected 'REPLACE' as the final resolution. According to the playbook for 'Moderate damage', the agent must notify the customer and offer two options: deliver as-is or initiate a replacement. 'REPLACE' is a conditional future resolution that only becomes applicable if the customer chooses that option. Per the validation criteria, conditional future actions must not be selected as the current resolution unless the triggering condition (customer choice) has already occurred. The operational_action 'REMOVE_FROM_ROUTE_AND_HOLD' is correct, but the final resolution should reflect the current state of pending customer decision or a supported interim disposition."
           },
-          "reviewed_draft": {
-            "tone_label": "FORMAL",
-            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that during the delivery process, your package was identified as having sustained damage, specifically a crushed box with a visible dent. Given that your item is marked as fragile, we have taken the precaution of removing it from the delivery route to prevent any further issues.\n\nPlease accept our sincere apologies for this occurrence. We are currently arranging for a replacement to be sent to you.\n\nThank you for your patience."
+          "reviewed_proposal": {
+            "is_exception": "YES",
+            "resolution": "REPLACE",
+            "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
+            "rationale": "The shipment is flagged as 'DAMAGED' with a crushed box and visible dent. Because the package is marked as 'FRAGILE', the playbook dictates that the threshold for damage is lowered and this should be treated as 'Moderate damage'. According to the playbook, moderate damage to a fragile item requires the package to be pulled from the route. The playbook specifies that for moderate damage, the customer must be offered a choice: deliver as-is or initiate a replacement. Therefore, the package must be held to prevent delivery until the customer is consulted. Since the final resolution depends on the customer's choice between delivery or replacement, 'REPLACE' is selected as the most appropriate supported resolution to initiate the process once the customer responds."
           },
-          "summary": "Communication Critic: ACCEPT"
+          "summary": "Resolution Critic: REVISE"
         },
         {
           "index": 10,
           "node": "orchestrator",
-          "start_offset_seconds": 16.326,
+          "start_offset_seconds": 24.134,
           "duration_seconds": 0.003,
-          "summary": "Routes to finalize"
+          "summary": "Routes to communication agent"
         },
         {
           "index": 11,
+          "node": "communication_agent",
+          "start_offset_seconds": 24.138,
+          "duration_seconds": 2.489,
+          "draft": {
+            "tone_label": "FORMAL",
+            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that during the delivery process, your package was identified as having sustained damage. The box has a visible dent and appears crushed on one side.\n\nBecause your shipment contains fragile items, we have held the package to prevent delivery in its current condition. We would like to offer you the choice of receiving the shipment as-is or proceeding with a replacement. \n\nPlease let us know your preference. Once you have confirmed that you would like a replacement, we will immediately begin arranging for a new shipment to be sent to you.\n\nWe sincerely apologize for this inconvenience."
+          },
+          "summary": "Prepared an unsent customer draft"
+        },
+        {
+          "index": 12,
+          "node": "orchestrator",
+          "start_offset_seconds": 26.63,
+          "duration_seconds": 0.004,
+          "summary": "Routes to critic communication"
+        },
+        {
+          "index": 13,
+          "node": "critic_communication",
+          "start_offset_seconds": 26.639,
+          "duration_seconds": 2.392,
+          "review": {
+            "decision": "ESCALATE",
+            "rationale": "The message contradicts the approved resolution. The resolution is explicitly set to 'REPLACE', but the message asks the customer to choose between receiving the item as-is or a replacement."
+          },
+          "reviewed_draft": {
+            "tone_label": "FORMAL",
+            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that during the delivery process, your package was identified as having sustained damage. The box has a visible dent and appears crushed on one side.\n\nBecause your shipment contains fragile items, we have held the package to prevent delivery in its current condition. We would like to offer you the choice of receiving the shipment as-is or proceeding with a replacement. \n\nPlease let us know your preference. Once you have confirmed that you would like a replacement, we will immediately begin arranging for a new shipment to be sent to you.\n\nWe sincerely apologize for this inconvenience."
+          },
+          "summary": "Communication Critic: ESCALATE"
+        },
+        {
+          "index": 14,
+          "node": "orchestrator",
+          "start_offset_seconds": 29.032,
+          "duration_seconds": 0.004,
+          "summary": "Routes to finalize"
+        },
+        {
+          "index": 15,
           "node": "finalize",
-          "start_offset_seconds": 16.332,
-          "duration_seconds": 0.002,
+          "start_offset_seconds": 29.038,
+          "duration_seconds": 0.001,
           "summary": "Recorded final decision · REPLACE"
         }
       ],
       "trace_summary": {
-        "spans_recorded": 47,
+        "spans_recorded": 65,
         "root_completed": true,
+        "recovered_error_spans": 2,
         "source": "LangSmith per-case trace export",
         "captured_at": "2026-10-17"
       },
       "tool_calls": [
-        "lookup_customer_profile · 0.003s (recorded tool span; arguments hidden)",
+        "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
         "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
         "check_locker_availability · 0.002s (recorded tool span; arguments hidden)",
-        "search_playbook · 0.046s (recorded tool span; arguments hidden)",
-        "check_escalation_rules · 0.002s (recorded tool span; arguments hidden)"
+        "search_playbook · 0.042s (recorded tool span; arguments hidden)",
+        "check_escalation_rules · 0.001s (recorded tool span; arguments hidden)"
       ],
       "playbook_references": [],
-      "citation_pages": []
+      "citation_pages": [],
+      "benchmark_assessment": {
+        "checks": {
+          "Task": "PASS",
+          "Exception": "PASS",
+          "Resolution": "PASS",
+          "Escalation": "PASS",
+          "Tone": "PASS",
+          "Tools": "PASS"
+        },
+        "coherence_score": 3,
+        "judge_scale": 5,
+        "revisions": 2,
+        "notebook_latency_seconds": 29.03,
+        "source": "Executed end-to-end notebook: individual test assessment"
+      }
     },
     {
       "id": "SHP-005",
@@ -769,22 +836,22 @@
         "is_exception": "YES",
         "resolution": "REROUTE_TO_LOCKER",
         "operational_action": "HOLD_AT_DEPOT_PENDING_SUPERVISOR",
-        "rationale": "The shipment has reached its 3rd failed delivery attempt due to a persistent access barrier (no buzzer system), which triggers an escalation signal. According to the playbook, a 3rd failed attempt for a Standard customer typically requires holding the package at the depot for pickup. However, the escalation signals suggest that persistent access barriers like a broken or missing buzzer support REROUTE_TO_LOCKER as an alternative resolution. Since the only available locker (LOC-003) is currently FULL and marked as ineligible, I cannot execute REROUTE_TO_LOCKER immediately. Therefore, I am selecting HOLD_AT_DEPOT_PENDING_SUPERVISOR to allow a supervisor to identify an available alternative locker or approve the final disposition."
+        "rationale": "The shipment has reached the 3rd failed delivery attempt threshold for a Standard tier customer. The driver notes indicate a persistent access barrier (no buzzer system), which, according to the 'THIRD_FAILED_ATTEMPT_ALTERNATIVE_RESOLUTION' signal, supports REROUTE_TO_LOCKER as an alternative to the standard hold-for-pickup path. However, the only available locker at the delivery address (LOC-003) is explicitly marked as 'eligible: false' because it is 'FULL'. Per the 'THIRD_FAILED_ATTEMPT_SUPERVISOR_HOLD' operational constraint, because REROUTE_TO_LOCKER is an appropriate resolution but no eligible locker is currently available, the shipment must be held at the depot pending supervisor review to identify an alternative locker."
       },
       "resolution_critic": {
         "decision": "ACCEPT",
-        "rationale": "The exception classification is supported by the 3rd failed delivery attempt. The final resolution (REROUTE_TO_LOCKER) is supported by the escalation signals, which explicitly state that persistent access barriers (such as the missing buzzer system noted by the driver) support rerouting to a locker as an alternative to the standard pickup path. The operational_action (HOLD_AT_DEPOT_PENDING_SUPERVISOR) is correct and logically compatible because the only identified locker (LOC-003) is full and ineligible; the operational constraints specifically mandate this action when a locker reroute is appropriate but the current locker is unavailable, pending supervisor identification of an alternative. The agent correctly distinguished between the intended final disposition and the immediate execution blocker."
+        "rationale": "The Resolution Agent correctly identified that the 3rd failed attempt with a persistent access barrier (no buzzer) supports REROUTE_TO_LOCKER as an alternative resolution per the provided escalation signals. Since the only identified locker (LOC-003) is full and ineligible, the agent correctly applied the operational_action HOLD_AT_DEPOT_PENDING_SUPERVISOR as required by the 'THIRD_FAILED_ATTEMPT_SUPERVISOR_HOLD' constraint to allow a supervisor to identify an alternative. The logic is consistent with the evidence and playbook."
       },
       "communication_agent": {
         "tone_label": "CASUAL",
-        "communication_message": "Hi [CUSTOMER], we've tried to deliver your package three times, but we couldn't gain access to your building. We are currently working on arranging a reroute to a locker for you. We'll let you know as soon as this is ready for pickup."
+        "communication_message": "Hi [CUSTOMER], we're sorry we couldn't reach you for your delivery after three attempts. We'd like to reroute your package to a locker, but the nearest one is currently full. We are holding your shipment at our depot while a supervisor looks for another available locker for you. We'll update you as soon as we have a new location."
       },
       "communication_critic": {
-        "decision": "ACCEPT",
-        "rationale": "The message accurately reflects the approved resolution (REROUTE_TO_LOCKER), uses the correct casual tone for a STANDARD tier customer, and is appropriate for the SMS channel. It clearly explains the delivery issue (lack of building access) without using internal terminology and does not invent any unsupported dates or commitments."
+        "decision": "ESCALATE",
+        "rationale": "The message invents unsupported information regarding a locker being 'currently full' and a supervisor 'looking for another available locker.' The provided context only specifies the resolution as REROUTE_TO_LOCKER and the operational action as HOLD_AT_DEPOT_PENDING_SUPERVISOR; it does not mention locker capacity issues or a search for alternative lockers."
       },
       "metrics": {
-        "latency_seconds": 16.548
+        "latency_seconds": 24.435
       },
       "trajectory": [
         "preprocessor: Normalised event; exception identified",
@@ -795,7 +862,7 @@
         "orchestrator: Routes to communication agent",
         "communication_agent: Prepared an unsent customer draft",
         "orchestrator: Routes to critic communication",
-        "critic_communication: Communication Critic: ACCEPT",
+        "critic_communication: Communication Critic: ESCALATE",
         "orchestrator: Routes to finalize",
         "finalize: Recorded final decision · REROUTE TO LOCKER"
       ],
@@ -803,124 +870,140 @@
         {
           "index": 1,
           "node": "preprocessor",
-          "start_offset_seconds": 0.002,
-          "duration_seconds": 0.057,
+          "start_offset_seconds": 0.003,
+          "duration_seconds": 0.059,
           "summary": "Normalised event; exception identified"
         },
         {
           "index": 2,
           "node": "orchestrator",
-          "start_offset_seconds": 0.062,
-          "duration_seconds": 0.004,
+          "start_offset_seconds": 0.064,
+          "duration_seconds": 0.006,
           "summary": "Routes to resolution agent"
         },
         {
           "index": 3,
           "node": "resolution_agent",
-          "start_offset_seconds": 0.069,
-          "duration_seconds": 5.884,
+          "start_offset_seconds": 0.073,
+          "duration_seconds": 7.138,
           "proposal": {
             "is_exception": "YES",
             "resolution": "REROUTE_TO_LOCKER",
             "operational_action": "HOLD_AT_DEPOT_PENDING_SUPERVISOR",
-            "rationale": "The shipment has reached its 3rd failed delivery attempt due to a persistent access barrier (no buzzer system), which triggers an escalation signal. According to the playbook, a 3rd failed attempt for a Standard customer typically requires holding the package at the depot for pickup. However, the escalation signals suggest that persistent access barriers like a broken or missing buzzer support REROUTE_TO_LOCKER as an alternative resolution. Since the only available locker (LOC-003) is currently FULL and marked as ineligible, I cannot execute REROUTE_TO_LOCKER immediately. Therefore, I am selecting HOLD_AT_DEPOT_PENDING_SUPERVISOR to allow a supervisor to identify an available alternative locker or approve the final disposition."
+            "rationale": "The shipment has reached the 3rd failed delivery attempt threshold for a Standard tier customer. The driver notes indicate a persistent access barrier (no buzzer system), which, according to the 'THIRD_FAILED_ATTEMPT_ALTERNATIVE_RESOLUTION' signal, supports REROUTE_TO_LOCKER as an alternative to the standard hold-for-pickup path. However, the only available locker at the delivery address (LOC-003) is explicitly marked as 'eligible: false' because it is 'FULL'. Per the 'THIRD_FAILED_ATTEMPT_SUPERVISOR_HOLD' operational constraint, because REROUTE_TO_LOCKER is an appropriate resolution but no eligible locker is currently available, the shipment must be held at the depot pending supervisor review to identify an alternative locker."
           },
           "summary": "Proposed reroute to locker · hold at depot pending supervisor"
         },
         {
           "index": 4,
           "node": "orchestrator",
-          "start_offset_seconds": 5.957,
-          "duration_seconds": 0.005,
+          "start_offset_seconds": 7.214,
+          "duration_seconds": 0.004,
           "summary": "Routes to critic resolution"
         },
         {
           "index": 5,
           "node": "critic_resolution",
-          "start_offset_seconds": 5.964,
-          "duration_seconds": 5.653,
+          "start_offset_seconds": 7.22,
+          "duration_seconds": 11.251,
           "review": {
             "decision": "ACCEPT",
-            "rationale": "The exception classification is supported by the 3rd failed delivery attempt. The final resolution (REROUTE_TO_LOCKER) is supported by the escalation signals, which explicitly state that persistent access barriers (such as the missing buzzer system noted by the driver) support rerouting to a locker as an alternative to the standard pickup path. The operational_action (HOLD_AT_DEPOT_PENDING_SUPERVISOR) is correct and logically compatible because the only identified locker (LOC-003) is full and ineligible; the operational constraints specifically mandate this action when a locker reroute is appropriate but the current locker is unavailable, pending supervisor identification of an alternative. The agent correctly distinguished between the intended final disposition and the immediate execution blocker."
+            "rationale": "The Resolution Agent correctly identified that the 3rd failed attempt with a persistent access barrier (no buzzer) supports REROUTE_TO_LOCKER as an alternative resolution per the provided escalation signals. Since the only identified locker (LOC-003) is full and ineligible, the agent correctly applied the operational_action HOLD_AT_DEPOT_PENDING_SUPERVISOR as required by the 'THIRD_FAILED_ATTEMPT_SUPERVISOR_HOLD' constraint to allow a supervisor to identify an alternative. The logic is consistent with the evidence and playbook."
           },
           "reviewed_proposal": {
             "is_exception": "YES",
             "resolution": "REROUTE_TO_LOCKER",
             "operational_action": "HOLD_AT_DEPOT_PENDING_SUPERVISOR",
-            "rationale": "The shipment has reached its 3rd failed delivery attempt due to a persistent access barrier (no buzzer system), which triggers an escalation signal. According to the playbook, a 3rd failed attempt for a Standard customer typically requires holding the package at the depot for pickup. However, the escalation signals suggest that persistent access barriers like a broken or missing buzzer support REROUTE_TO_LOCKER as an alternative resolution. Since the only available locker (LOC-003) is currently FULL and marked as ineligible, I cannot execute REROUTE_TO_LOCKER immediately. Therefore, I am selecting HOLD_AT_DEPOT_PENDING_SUPERVISOR to allow a supervisor to identify an available alternative locker or approve the final disposition."
+            "rationale": "The shipment has reached the 3rd failed delivery attempt threshold for a Standard tier customer. The driver notes indicate a persistent access barrier (no buzzer system), which, according to the 'THIRD_FAILED_ATTEMPT_ALTERNATIVE_RESOLUTION' signal, supports REROUTE_TO_LOCKER as an alternative to the standard hold-for-pickup path. However, the only available locker at the delivery address (LOC-003) is explicitly marked as 'eligible: false' because it is 'FULL'. Per the 'THIRD_FAILED_ATTEMPT_SUPERVISOR_HOLD' operational constraint, because REROUTE_TO_LOCKER is an appropriate resolution but no eligible locker is currently available, the shipment must be held at the depot pending supervisor review to identify an alternative locker."
           },
           "summary": "Resolution Critic: ACCEPT"
         },
         {
           "index": 6,
           "node": "orchestrator",
-          "start_offset_seconds": 11.619,
-          "duration_seconds": 0.003,
+          "start_offset_seconds": 18.472,
+          "duration_seconds": 0.002,
           "summary": "Routes to communication agent"
         },
         {
           "index": 7,
           "node": "communication_agent",
-          "start_offset_seconds": 11.63,
-          "duration_seconds": 2.071,
+          "start_offset_seconds": 18.479,
+          "duration_seconds": 1.975,
           "draft": {
             "tone_label": "CASUAL",
-            "communication_message": "Hi [CUSTOMER], we've tried to deliver your package three times, but we couldn't gain access to your building. We are currently working on arranging a reroute to a locker for you. We'll let you know as soon as this is ready for pickup."
+            "communication_message": "Hi [CUSTOMER], we're sorry we couldn't reach you for your delivery after three attempts. We'd like to reroute your package to a locker, but the nearest one is currently full. We are holding your shipment at our depot while a supervisor looks for another available locker for you. We'll update you as soon as we have a new location."
           },
           "summary": "Prepared an unsent customer draft"
         },
         {
           "index": 8,
           "node": "orchestrator",
-          "start_offset_seconds": 13.704,
-          "duration_seconds": 0.005,
+          "start_offset_seconds": 20.456,
+          "duration_seconds": 0.004,
           "summary": "Routes to critic communication"
         },
         {
           "index": 9,
           "node": "critic_communication",
-          "start_offset_seconds": 13.711,
-          "duration_seconds": 2.823,
+          "start_offset_seconds": 20.461,
+          "duration_seconds": 3.963,
           "review": {
-            "decision": "ACCEPT",
-            "rationale": "The message accurately reflects the approved resolution (REROUTE_TO_LOCKER), uses the correct casual tone for a STANDARD tier customer, and is appropriate for the SMS channel. It clearly explains the delivery issue (lack of building access) without using internal terminology and does not invent any unsupported dates or commitments."
+            "decision": "ESCALATE",
+            "rationale": "The message invents unsupported information regarding a locker being 'currently full' and a supervisor 'looking for another available locker.' The provided context only specifies the resolution as REROUTE_TO_LOCKER and the operational action as HOLD_AT_DEPOT_PENDING_SUPERVISOR; it does not mention locker capacity issues or a search for alternative lockers."
           },
           "reviewed_draft": {
             "tone_label": "CASUAL",
-            "communication_message": "Hi [CUSTOMER], we've tried to deliver your package three times, but we couldn't gain access to your building. We are currently working on arranging a reroute to a locker for you. We'll let you know as soon as this is ready for pickup."
+            "communication_message": "Hi [CUSTOMER], we're sorry we couldn't reach you for your delivery after three attempts. We'd like to reroute your package to a locker, but the nearest one is currently full. We are holding your shipment at our depot while a supervisor looks for another available locker for you. We'll update you as soon as we have a new location."
           },
-          "summary": "Communication Critic: ACCEPT"
+          "summary": "Communication Critic: ESCALATE"
         },
         {
           "index": 10,
           "node": "orchestrator",
-          "start_offset_seconds": 16.535,
-          "duration_seconds": 0.004,
+          "start_offset_seconds": 24.426,
+          "duration_seconds": 0.002,
           "summary": "Routes to finalize"
         },
         {
           "index": 11,
           "node": "finalize",
-          "start_offset_seconds": 16.543,
-          "duration_seconds": 0.003,
+          "start_offset_seconds": 24.431,
+          "duration_seconds": 0.002,
           "summary": "Recorded final decision · REROUTE TO LOCKER"
         }
       ],
       "trace_summary": {
         "spans_recorded": 47,
         "root_completed": true,
+        "recovered_error_spans": 0,
         "source": "LangSmith per-case trace export",
         "captured_at": "2026-10-17"
       },
       "tool_calls": [
-        "lookup_customer_profile · 0.006s (recorded tool span; arguments hidden)",
-        "lookup_customer_profile · 0.004s (recorded tool span; arguments hidden)",
-        "check_locker_availability · 0.004s (recorded tool span; arguments hidden)",
-        "search_playbook · 0.034s (recorded tool span; arguments hidden)",
-        "check_escalation_rules · 0.001s (recorded tool span; arguments hidden)"
+        "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
+        "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
+        "check_locker_availability · 0.002s (recorded tool span; arguments hidden)",
+        "search_playbook · 0.045s (recorded tool span; arguments hidden)",
+        "check_escalation_rules · 0.003s (recorded tool span; arguments hidden)"
       ],
       "playbook_references": [],
-      "citation_pages": []
+      "citation_pages": [],
+      "benchmark_assessment": {
+        "checks": {
+          "Task": "PASS",
+          "Exception": "PASS",
+          "Resolution": "PASS",
+          "Escalation": "PASS",
+          "Tone": "PASS",
+          "Tools": "PASS"
+        },
+        "coherence_score": 2,
+        "judge_scale": 5,
+        "revisions": 0,
+        "notebook_latency_seconds": 24.43,
+        "source": "Executed end-to-end notebook: individual test assessment"
+      }
     },
     {
       "id": "SHP-006",
@@ -961,22 +1044,22 @@
         "is_exception": "YES",
         "resolution": "RETURN_TO_SENDER",
         "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
-        "rationale": "The delivery event is a 'REFUSED' status where the customer stated they did not order the package. According to the 'Refused Deliveries' playbook section, when a customer refuses a delivery (including cases where they claim they didn't order it), the standard process is to initiate the return-to-sender process. The playbook specifies that the package must go back to the depot before being shipped back to the origin. Since 'RETURN_TO_SENDER' is the only supported resolution in the taxonomy that aligns with the final outcome of the playbook's refusal process, it is the most appropriate selection. Note: The required operational step of returning the package to the depot is captured within the logic of the RETURN_TO_SENDER resolution."
+        "rationale": "The delivery event is a 'REFUSED' status where the customer explicitly stated they did not order the package. According to the 'Refused Deliveries' playbook (Section 4), when a customer refuses a delivery because they claim they didn't order it, the standard process is to accept the refusal and initiate the return-to-sender process. The playbook specifies that the package must go back to the depot to be shipped back to the origin. Therefore, the appropriate resolution is RETURN_TO_SENDER. To satisfy the operational requirement of moving the package from the driver back to the depot as mandated by the playbook, the operational action is to move the package from the route to a holding state at the depot."
       },
       "resolution_critic": {
         "decision": "ACCEPT",
-        "rationale": "The exception classification is supported by the 'REFUSED' status in the delivery event. The final resolution 'RETURN_TO_SENDER' is explicitly required by the 'Standard Refusal Process' in the playbook for customers who refuse delivery, including those who claim they did not order the item. The operational_action 'REMOVE_FROM_ROUTE_AND_HOLD' is appropriate as the playbook requires the package to go back to the depot before being shipped back to the origin. The decision is logically consistent with the provided evidence and playbook guidance."
+        "rationale": "The exception classification is supported by the 'REFUSED' status in the delivery event. The final resolution (RETURN_TO_SENDER) is explicitly mandated by the 'Refused Deliveries' playbook for cases where the customer refuses a package they claim not to have ordered. The operational_action (REMOVE_FROM_ROUTE_AND_HOLD) is a logically compatible interim step to return the package to the depot before it is shipped back to the origin, as required by the playbook."
       },
       "communication_agent": {
         "tone_label": "CASUAL",
-        "communication_message": "Hi [CUSTOMER], we're sorry for the confusion regarding your delivery. Since the package was refused at your door, it is being returned to the sender."
+        "communication_message": "Hi [CUSTOMER], we're sorry for the confusion regarding your delivery. Since the package was refused, we are returning it to the sender. We apologize for any inconvenience."
       },
       "communication_critic": {
         "decision": "ACCEPT",
         "rationale": "The message accurately reflects the approved resolution (RETURN_TO_SENDER), uses the correct casual tone for a STANDARD tier customer, is appropriate for SMS, and contains no unsupported promises or internal terminology."
       },
       "metrics": {
-        "latency_seconds": 12.737
+        "latency_seconds": 49.691
       },
       "trajectory": [
         "preprocessor: Normalised event; exception identified",
@@ -999,168 +1082,184 @@
         {
           "index": 1,
           "node": "preprocessor",
-          "start_offset_seconds": 0.004,
-          "duration_seconds": 0.039,
+          "start_offset_seconds": 0.002,
+          "duration_seconds": 0.051,
           "summary": "Normalised event; exception identified"
         },
         {
           "index": 2,
           "node": "orchestrator",
-          "start_offset_seconds": 0.045,
+          "start_offset_seconds": 0.055,
           "duration_seconds": 0.002,
           "summary": "Routes to resolution agent"
         },
         {
           "index": 3,
           "node": "resolution_agent",
-          "start_offset_seconds": 0.048,
-          "duration_seconds": 3.52,
+          "start_offset_seconds": 0.059,
+          "duration_seconds": 4.416,
           "proposal": {
             "is_exception": "YES",
             "resolution": "RETURN_TO_SENDER",
             "operational_action": "NONE",
-            "rationale": "The delivery event is a 'REFUSED' status where the customer claims they did not order the item. According to the playbook (Section 4: Refused Deliveries), if the customer insists they didn't order the item and the address is verified (no mismatch indicated in the event), the standard process is to initiate the return-to-sender process. Since the customer explicitly refused the package, a redelivery or reroute is not appropriate."
+            "rationale": "The delivery event is a 'REFUSED' status where the customer explicitly stated they did not order the package. According to the playbook (Section 4: Refused Deliveries), if a customer refuses a delivery because they claim they did not order it, and the address is verified, the standard process is to initiate the return-to-sender process. Since the customer is at the 'STANDARD' tier and the refusal is based on non-acceptance rather than a failed access attempt, the playbook directs the package back to the depot and origin rather than scheduling a redelivery."
           },
           "summary": "Proposed return to sender · none"
         },
         {
           "index": 4,
           "node": "orchestrator",
-          "start_offset_seconds": 3.574,
-          "duration_seconds": 0.006,
+          "start_offset_seconds": 4.48,
+          "duration_seconds": 0.007,
           "summary": "Routes to critic resolution"
         },
         {
           "index": 5,
           "node": "critic_resolution",
-          "start_offset_seconds": 3.583,
-          "duration_seconds": 2.068,
+          "start_offset_seconds": 4.491,
+          "duration_seconds": 9.05,
           "review": {
             "decision": "REVISE",
-            "rationale": "The Resolution Agent failed to identify the required operational action. The playbook for 'Refused Deliveries' explicitly states that the package 'goes back to the depot' before shipping back to the origin. Therefore, an operational action to return the package to the depot is required before the final resolution of RETURN_TO_SENDER can be completed. 'NONE' is incorrect as the package is currently with the driver/at the delivery site and must be physically moved back to the depot."
+            "rationale": "The Resolution Agent correctly identified the final resolution as RETURN_TO_SENDER based on the 'Refused Deliveries' playbook. However, the operational_action is listed as 'NONE', which contradicts the playbook's requirement to 'Initiate the return-to-sender process' and ensure the package 'goes back to the depot'. An operational action is required to move the package from the driver/field back to the depot before it can be shipped back to the origin. The agent should specify an appropriate operational action (e.g., RETURN_TO_DEPOT) to reflect this immediate handling requirement."
           },
           "reviewed_proposal": {
             "is_exception": "YES",
             "resolution": "RETURN_TO_SENDER",
             "operational_action": "NONE",
-            "rationale": "The delivery event is a 'REFUSED' status where the customer claims they did not order the item. According to the playbook (Section 4: Refused Deliveries), if the customer insists they didn't order the item and the address is verified (no mismatch indicated in the event), the standard process is to initiate the return-to-sender process. Since the customer explicitly refused the package, a redelivery or reroute is not appropriate."
+            "rationale": "The delivery event is a 'REFUSED' status where the customer explicitly stated they did not order the package. According to the playbook (Section 4: Refused Deliveries), if a customer refuses a delivery because they claim they did not order it, and the address is verified, the standard process is to initiate the return-to-sender process. Since the customer is at the 'STANDARD' tier and the refusal is based on non-acceptance rather than a failed access attempt, the playbook directs the package back to the depot and origin rather than scheduling a redelivery."
           },
           "summary": "Resolution Critic: REVISE"
         },
         {
           "index": 6,
           "node": "orchestrator",
-          "start_offset_seconds": 5.653,
-          "duration_seconds": 0.006,
+          "start_offset_seconds": 13.542,
+          "duration_seconds": 0.002,
           "summary": "Routes to resolution agent"
         },
         {
           "index": 7,
           "node": "resolution_agent",
-          "start_offset_seconds": 5.661,
-          "duration_seconds": 2.477,
+          "start_offset_seconds": 13.546,
+          "duration_seconds": 13.809,
           "proposal": {
             "is_exception": "YES",
             "resolution": "RETURN_TO_SENDER",
             "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
-            "rationale": "The delivery event is a 'REFUSED' status where the customer stated they did not order the package. According to the 'Refused Deliveries' playbook section, when a customer refuses a delivery (including cases where they claim they didn't order it), the standard process is to initiate the return-to-sender process. The playbook specifies that the package must go back to the depot before being shipped back to the origin. Since 'RETURN_TO_SENDER' is the only supported resolution in the taxonomy that aligns with the final outcome of the playbook's refusal process, it is the most appropriate selection. Note: The required operational step of returning the package to the depot is captured within the logic of the RETURN_TO_SENDER resolution."
+            "rationale": "The delivery event is a 'REFUSED' status where the customer explicitly stated they did not order the package. According to the 'Refused Deliveries' playbook (Section 4), when a customer refuses a delivery because they claim they didn't order it, the standard process is to accept the refusal and initiate the return-to-sender process. The playbook specifies that the package must go back to the depot to be shipped back to the origin. Therefore, the appropriate resolution is RETURN_TO_SENDER. To satisfy the operational requirement of moving the package from the driver back to the depot as mandated by the playbook, the operational action is to move the package from the route to a holding state at the depot."
           },
           "summary": "Proposed return to sender · remove from route and hold"
         },
         {
           "index": 8,
           "node": "orchestrator",
-          "start_offset_seconds": 8.147,
+          "start_offset_seconds": 27.358,
           "duration_seconds": 0.005,
           "summary": "Routes to critic resolution"
         },
         {
           "index": 9,
           "node": "critic_resolution",
-          "start_offset_seconds": 8.155,
-          "duration_seconds": 1.967,
+          "start_offset_seconds": 27.365,
+          "duration_seconds": 7.759,
           "review": {
             "decision": "ACCEPT",
-            "rationale": "The exception classification is supported by the 'REFUSED' status in the delivery event. The final resolution 'RETURN_TO_SENDER' is explicitly required by the 'Standard Refusal Process' in the playbook for customers who refuse delivery, including those who claim they did not order the item. The operational_action 'REMOVE_FROM_ROUTE_AND_HOLD' is appropriate as the playbook requires the package to go back to the depot before being shipped back to the origin. The decision is logically consistent with the provided evidence and playbook guidance."
+            "rationale": "The exception classification is supported by the 'REFUSED' status in the delivery event. The final resolution (RETURN_TO_SENDER) is explicitly mandated by the 'Refused Deliveries' playbook for cases where the customer refuses a package they claim not to have ordered. The operational_action (REMOVE_FROM_ROUTE_AND_HOLD) is a logically compatible interim step to return the package to the depot before it is shipped back to the origin, as required by the playbook."
           },
           "reviewed_proposal": {
             "is_exception": "YES",
             "resolution": "RETURN_TO_SENDER",
             "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
-            "rationale": "The delivery event is a 'REFUSED' status where the customer stated they did not order the package. According to the 'Refused Deliveries' playbook section, when a customer refuses a delivery (including cases where they claim they didn't order it), the standard process is to initiate the return-to-sender process. The playbook specifies that the package must go back to the depot before being shipped back to the origin. Since 'RETURN_TO_SENDER' is the only supported resolution in the taxonomy that aligns with the final outcome of the playbook's refusal process, it is the most appropriate selection. Note: The required operational step of returning the package to the depot is captured within the logic of the RETURN_TO_SENDER resolution."
+            "rationale": "The delivery event is a 'REFUSED' status where the customer explicitly stated they did not order the package. According to the 'Refused Deliveries' playbook (Section 4), when a customer refuses a delivery because they claim they didn't order it, the standard process is to accept the refusal and initiate the return-to-sender process. The playbook specifies that the package must go back to the depot to be shipped back to the origin. Therefore, the appropriate resolution is RETURN_TO_SENDER. To satisfy the operational requirement of moving the package from the driver back to the depot as mandated by the playbook, the operational action is to move the package from the route to a holding state at the depot."
           },
           "summary": "Resolution Critic: ACCEPT"
         },
         {
           "index": 10,
           "node": "orchestrator",
-          "start_offset_seconds": 10.124,
-          "duration_seconds": 0.003,
+          "start_offset_seconds": 35.125,
+          "duration_seconds": 0.002,
           "summary": "Routes to communication agent"
         },
         {
           "index": 11,
           "node": "communication_agent",
-          "start_offset_seconds": 10.129,
-          "duration_seconds": 1.398,
+          "start_offset_seconds": 35.129,
+          "duration_seconds": 10.93,
           "draft": {
             "tone_label": "CASUAL",
-            "communication_message": "Hi [CUSTOMER], we're sorry for the confusion regarding your delivery. Since the package was refused at your door, it is being returned to the sender."
+            "communication_message": "Hi [CUSTOMER], we're sorry for the confusion regarding your delivery. Since the package was refused, we are returning it to the sender. We apologize for any inconvenience."
           },
           "summary": "Prepared an unsent customer draft"
         },
         {
           "index": 12,
           "node": "orchestrator",
-          "start_offset_seconds": 11.529,
-          "duration_seconds": 0.004,
+          "start_offset_seconds": 46.061,
+          "duration_seconds": 0.002,
           "summary": "Routes to critic communication"
         },
         {
           "index": 13,
           "node": "critic_communication",
-          "start_offset_seconds": 11.538,
-          "duration_seconds": 1.187,
+          "start_offset_seconds": 46.065,
+          "duration_seconds": 3.614,
           "review": {
             "decision": "ACCEPT",
             "rationale": "The message accurately reflects the approved resolution (RETURN_TO_SENDER), uses the correct casual tone for a STANDARD tier customer, is appropriate for SMS, and contains no unsupported promises or internal terminology."
           },
           "reviewed_draft": {
             "tone_label": "CASUAL",
-            "communication_message": "Hi [CUSTOMER], we're sorry for the confusion regarding your delivery. Since the package was refused at your door, it is being returned to the sender."
+            "communication_message": "Hi [CUSTOMER], we're sorry for the confusion regarding your delivery. Since the package was refused, we are returning it to the sender. We apologize for any inconvenience."
           },
           "summary": "Communication Critic: ACCEPT"
         },
         {
           "index": 14,
           "node": "orchestrator",
-          "start_offset_seconds": 12.726,
+          "start_offset_seconds": 49.681,
           "duration_seconds": 0.003,
           "summary": "Routes to finalize"
         },
         {
           "index": 15,
           "node": "finalize",
-          "start_offset_seconds": 12.732,
-          "duration_seconds": 0.004,
+          "start_offset_seconds": 49.686,
+          "duration_seconds": 0.003,
           "summary": "Recorded final decision · RETURN TO SENDER"
         }
       ],
       "trace_summary": {
         "spans_recorded": 63,
         "root_completed": true,
+        "recovered_error_spans": 0,
         "source": "LangSmith per-case trace export",
         "captured_at": "2026-10-17"
       },
       "tool_calls": [
-        "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
-        "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
-        "check_locker_availability · 0.002s (recorded tool span; arguments hidden)",
-        "search_playbook · 0.028s (recorded tool span; arguments hidden)",
-        "check_escalation_rules · 0.001s (recorded tool span; arguments hidden)"
+        "lookup_customer_profile · 0.003s (recorded tool span; arguments hidden)",
+        "lookup_customer_profile · 0.001s (recorded tool span; arguments hidden)",
+        "check_locker_availability · 0.001s (recorded tool span; arguments hidden)",
+        "search_playbook · 0.037s (recorded tool span; arguments hidden)",
+        "check_escalation_rules · 0.002s (recorded tool span; arguments hidden)"
       ],
       "playbook_references": [],
-      "citation_pages": []
+      "citation_pages": [],
+      "benchmark_assessment": {
+        "checks": {
+          "Task": "PASS",
+          "Exception": "PASS",
+          "Resolution": "PASS",
+          "Escalation": "PASS",
+          "Tone": "PASS",
+          "Tools": "PASS"
+        },
+        "coherence_score": 5,
+        "judge_scale": 5,
+        "revisions": 1,
+        "notebook_latency_seconds": 49.68,
+        "source": "Executed end-to-end notebook: individual test assessment"
+      }
     },
     {
       "id": "SHP-007",
@@ -1203,22 +1302,22 @@
         "is_exception": "YES",
         "resolution": "REPLACE",
         "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
-        "rationale": "The delivery event reports a weather delay due to heavy snow with an estimated 5-hour delay. According to the playbook for Perishable Packages, if the estimated delay exceeds 4 hours for a perishable item, the package should not be delivered as it is likely compromised. This shipment is identified as PERISHABLE and the delay (5 hours) exceeds the 4-hour threshold. Therefore, the package must be pulled from the route immediately and a replacement should be initiated. The appropriate interim action is to remove the package from the route and hold it to prevent delivery of potentially spoiled goods."
+        "rationale": "The delivery event indicates a weather delay of 5 hours for a perishable package. According to the playbook (Page 6), if a perishable item's estimated delay exceeds the 4-hour threshold, the item is considered likely compromised and delivery should not be attempted. The shipment must be pulled from the route and a replacement must be initiated. Given the customer is a VIP, the playbook also suggests providing a service credit, which aligns with their existing active credit profile."
       },
       "resolution_critic": {
         "decision": "ACCEPT",
-        "rationale": "The Resolution Agent correctly identified the exception based on the delivery event (WEATHER_DELAY) and the package type (PERISHABLE). The estimated delay of 5 hours exceeds the 4-hour threshold specified in the playbook for perishable items. Consequently, the playbook mandates that the item be pulled from the route and a replacement be initiated. The selected operational_action (REMOVE_FROM_ROUTE_AND_HOLD) is operationally equivalent to the playbook's instruction to 'pull it from the route immediately', and the final resolution (REPLACE) is explicitly supported by the playbook guidance for this scenario."
+        "rationale": "The exception classification is supported by the delivery event (WEATHER_DELAY). The final resolution (REPLACE) and operational action (REMOVE_FROM_ROUTE_AND_HOLD) are explicitly required by the playbook for perishable packages with an estimated delay exceeding 4 hours (current delay is 5 hours). The logic is consistent with the provided evidence and playbook guidance."
       },
       "communication_agent": {
         "tone_label": "FORMAL",
-        "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that your delivery has been delayed due to heavy snow on the route roads. Because your package contains perishable items and the estimated delay is 5 hours, we have decided to prioritize your safety and the quality of your goods by removing the package from the delivery route to prevent the delivery of potentially spoiled items.\n\nAs a result, we are arranging a replacement for your order. We apologize for this inconvenience and any disruption this may cause to your schedule.\n\nSincerely,\n\nCustomer Support Team"
+        "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that your delivery has been delayed due to heavy snow on the route roads. Because your package contains perishable items and the estimated delay is expected to exceed 4 hours, we have determined that the shipment may no longer be in optimal condition.\n\nTo ensure you receive your items in perfect condition, we are arranging a replacement for your order. We apologize for this inconvenience and any disruption this may cause to your schedule.\n\nThank you for your patience."
       },
       "communication_critic": {
         "decision": "ESCALATE",
-        "rationale": "The message fails to include the service credit required by the playbook for VIP customers in the event of a perishable replacement due to weather delays."
+        "rationale": "The message fails to include the service credit required by the playbook for VIP customers in the event of a perishable item replacement due to weather delays."
       },
       "metrics": {
-        "latency_seconds": 28.832
+        "latency_seconds": 21.743
       },
       "trajectory": [
         "preprocessor: Normalised event; exception identified",
@@ -1237,124 +1336,140 @@
         {
           "index": 1,
           "node": "preprocessor",
-          "start_offset_seconds": 0.004,
-          "duration_seconds": 0.038,
+          "start_offset_seconds": 0.003,
+          "duration_seconds": 0.061,
           "summary": "Normalised event; exception identified"
         },
         {
           "index": 2,
           "node": "orchestrator",
-          "start_offset_seconds": 0.044,
-          "duration_seconds": 0.002,
+          "start_offset_seconds": 0.066,
+          "duration_seconds": 0.004,
           "summary": "Routes to resolution agent"
         },
         {
           "index": 3,
           "node": "resolution_agent",
-          "start_offset_seconds": 0.049,
-          "duration_seconds": 6.657,
+          "start_offset_seconds": 0.072,
+          "duration_seconds": 5.262,
           "proposal": {
             "is_exception": "YES",
             "resolution": "REPLACE",
             "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
-            "rationale": "The delivery event reports a weather delay due to heavy snow with an estimated 5-hour delay. According to the playbook for Perishable Packages, if the estimated delay exceeds 4 hours for a perishable item, the package should not be delivered as it is likely compromised. This shipment is identified as PERISHABLE and the delay (5 hours) exceeds the 4-hour threshold. Therefore, the package must be pulled from the route immediately and a replacement should be initiated. The appropriate interim action is to remove the package from the route and hold it to prevent delivery of potentially spoiled goods."
+            "rationale": "The delivery event indicates a weather delay of 5 hours for a perishable package. According to the playbook (Page 6), if a perishable item's estimated delay exceeds the 4-hour threshold, the item is considered likely compromised and delivery should not be attempted. The shipment must be pulled from the route and a replacement must be initiated. Given the customer is a VIP, the playbook also suggests providing a service credit, which aligns with their existing active credit profile."
           },
           "summary": "Proposed replace · remove from route and hold"
         },
         {
           "index": 4,
           "node": "orchestrator",
-          "start_offset_seconds": 6.711,
-          "duration_seconds": 0.004,
+          "start_offset_seconds": 5.337,
+          "duration_seconds": 0.005,
           "summary": "Routes to critic resolution"
         },
         {
           "index": 5,
           "node": "critic_resolution",
-          "start_offset_seconds": 6.717,
-          "duration_seconds": 8.727,
+          "start_offset_seconds": 5.342,
+          "duration_seconds": 8.746,
           "review": {
             "decision": "ACCEPT",
-            "rationale": "The Resolution Agent correctly identified the exception based on the delivery event (WEATHER_DELAY) and the package type (PERISHABLE). The estimated delay of 5 hours exceeds the 4-hour threshold specified in the playbook for perishable items. Consequently, the playbook mandates that the item be pulled from the route and a replacement be initiated. The selected operational_action (REMOVE_FROM_ROUTE_AND_HOLD) is operationally equivalent to the playbook's instruction to 'pull it from the route immediately', and the final resolution (REPLACE) is explicitly supported by the playbook guidance for this scenario."
+            "rationale": "The exception classification is supported by the delivery event (WEATHER_DELAY). The final resolution (REPLACE) and operational action (REMOVE_FROM_ROUTE_AND_HOLD) are explicitly required by the playbook for perishable packages with an estimated delay exceeding 4 hours (current delay is 5 hours). The logic is consistent with the provided evidence and playbook guidance."
           },
           "reviewed_proposal": {
             "is_exception": "YES",
             "resolution": "REPLACE",
             "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
-            "rationale": "The delivery event reports a weather delay due to heavy snow with an estimated 5-hour delay. According to the playbook for Perishable Packages, if the estimated delay exceeds 4 hours for a perishable item, the package should not be delivered as it is likely compromised. This shipment is identified as PERISHABLE and the delay (5 hours) exceeds the 4-hour threshold. Therefore, the package must be pulled from the route immediately and a replacement should be initiated. The appropriate interim action is to remove the package from the route and hold it to prevent delivery of potentially spoiled goods."
+            "rationale": "The delivery event indicates a weather delay of 5 hours for a perishable package. According to the playbook (Page 6), if a perishable item's estimated delay exceeds the 4-hour threshold, the item is considered likely compromised and delivery should not be attempted. The shipment must be pulled from the route and a replacement must be initiated. Given the customer is a VIP, the playbook also suggests providing a service credit, which aligns with their existing active credit profile."
           },
           "summary": "Resolution Critic: ACCEPT"
         },
         {
           "index": 6,
           "node": "orchestrator",
-          "start_offset_seconds": 15.445,
+          "start_offset_seconds": 14.093,
           "duration_seconds": 0.005,
           "summary": "Routes to communication agent"
         },
         {
           "index": 7,
           "node": "communication_agent",
-          "start_offset_seconds": 15.453,
-          "duration_seconds": 2.738,
+          "start_offset_seconds": 14.102,
+          "duration_seconds": 3.316,
           "draft": {
             "tone_label": "FORMAL",
-            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that your delivery has been delayed due to heavy snow on the route roads. Because your package contains perishable items and the estimated delay is 5 hours, we have decided to prioritize your safety and the quality of your goods by removing the package from the delivery route to prevent the delivery of potentially spoiled items.\n\nAs a result, we are arranging a replacement for your order. We apologize for this inconvenience and any disruption this may cause to your schedule.\n\nSincerely,\n\nCustomer Support Team"
+            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that your delivery has been delayed due to heavy snow on the route roads. Because your package contains perishable items and the estimated delay is expected to exceed 4 hours, we have determined that the shipment may no longer be in optimal condition.\n\nTo ensure you receive your items in perfect condition, we are arranging a replacement for your order. We apologize for this inconvenience and any disruption this may cause to your schedule.\n\nThank you for your patience."
           },
           "summary": "Prepared an unsent customer draft"
         },
         {
           "index": 8,
           "node": "orchestrator",
-          "start_offset_seconds": 18.193,
-          "duration_seconds": 0.004,
+          "start_offset_seconds": 17.418,
+          "duration_seconds": 0.002,
           "summary": "Routes to critic communication"
         },
         {
           "index": 9,
           "node": "critic_communication",
-          "start_offset_seconds": 18.198,
-          "duration_seconds": 10.62,
+          "start_offset_seconds": 17.422,
+          "duration_seconds": 4.308,
           "review": {
             "decision": "ESCALATE",
-            "rationale": "The message fails to include the service credit required by the playbook for VIP customers in the event of a perishable replacement due to weather delays."
+            "rationale": "The message fails to include the service credit required by the playbook for VIP customers in the event of a perishable item replacement due to weather delays."
           },
           "reviewed_draft": {
             "tone_label": "FORMAL",
-            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that your delivery has been delayed due to heavy snow on the route roads. Because your package contains perishable items and the estimated delay is 5 hours, we have decided to prioritize your safety and the quality of your goods by removing the package from the delivery route to prevent the delivery of potentially spoiled items.\n\nAs a result, we are arranging a replacement for your order. We apologize for this inconvenience and any disruption this may cause to your schedule.\n\nSincerely,\n\nCustomer Support Team"
+            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that your delivery has been delayed due to heavy snow on the route roads. Because your package contains perishable items and the estimated delay is expected to exceed 4 hours, we have determined that the shipment may no longer be in optimal condition.\n\nTo ensure you receive your items in perfect condition, we are arranging a replacement for your order. We apologize for this inconvenience and any disruption this may cause to your schedule.\n\nThank you for your patience."
           },
           "summary": "Communication Critic: ESCALATE"
         },
         {
           "index": 10,
           "node": "orchestrator",
-          "start_offset_seconds": 28.821,
+          "start_offset_seconds": 21.732,
           "duration_seconds": 0.004,
           "summary": "Routes to finalize"
         },
         {
           "index": 11,
           "node": "finalize",
-          "start_offset_seconds": 28.826,
-          "duration_seconds": 0.003,
+          "start_offset_seconds": 21.738,
+          "duration_seconds": 0.001,
           "summary": "Recorded final decision · REPLACE"
         }
       ],
       "trace_summary": {
         "spans_recorded": 47,
         "root_completed": true,
+        "recovered_error_spans": 0,
         "source": "LangSmith per-case trace export",
         "captured_at": "2026-10-17"
       },
       "tool_calls": [
         "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
-        "lookup_customer_profile · 0.001s (recorded tool span; arguments hidden)",
-        "check_locker_availability · 0.001s (recorded tool span; arguments hidden)",
-        "search_playbook · 0.027s (recorded tool span; arguments hidden)",
+        "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
+        "check_locker_availability · 0.002s (recorded tool span; arguments hidden)",
+        "search_playbook · 0.047s (recorded tool span; arguments hidden)",
         "check_escalation_rules · 0.001s (recorded tool span; arguments hidden)"
       ],
       "playbook_references": [],
-      "citation_pages": []
+      "citation_pages": [],
+      "benchmark_assessment": {
+        "checks": {
+          "Task": "PASS",
+          "Exception": "PASS",
+          "Resolution": "PASS",
+          "Escalation": "PASS",
+          "Tone": "PASS",
+          "Tools": "PASS"
+        },
+        "coherence_score": 5,
+        "judge_scale": 5,
+        "revisions": 0,
+        "notebook_latency_seconds": 21.73,
+        "source": "Executed end-to-end notebook: individual test assessment"
+      }
     },
     {
       "id": "SHP-008",
@@ -1390,34 +1505,38 @@
         "resolution": "RESCHEDULE",
         "escalated": true,
         "tone": "CASUAL",
-        "revision_count": 0,
+        "revision_count": 1,
         "guardrail_blocked": false
       },
       "resolution_agent": {
         "is_exception": "YES",
         "resolution": "RESCHEDULE",
-        "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
-        "rationale": "The delivery event is a failed delivery attempt (status: ATTEMPTED) because the customer was not available at the address. According to the playbook (Page 2, Section 1), this is a routine failed delivery attempt. Since this is the second attempt for a Standard tier customer, the playbook indicates a need to be proactive. While the playbook does not explicitly name the specific action for the second attempt in the provided snippet, the standard procedure for failed attempts is to schedule a redelivery. Rerouting to a locker is not possible because the only available locker (LOC-003) is explicitly marked as 'eligible: false' due to being 'FULL'. Therefore, RESCHEDULE is the most appropriate resolution to attempt delivery again."
+        "operational_action": "HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER",
+        "rationale": "The delivery event is a failed second attempt because the customer was not home. According to the playbook [Page 2], after a failed attempt, the package must be returned to the depot. Since this is the second attempt for a Standard tier customer, the playbook indicates a need to be more proactive; therefore, the package is held at the depot while the customer is contacted to coordinate the next steps. The final resolution is RESCHEDULE to attempt delivery again."
       },
       "resolution_critic": {
         "decision": "ACCEPT",
-        "rationale": "The exception classification is supported by the delivery event (failed attempt). The operational_action (REMOVE_FROM_ROUTE_AND_HOLD) is appropriate as the playbook states the package is 'coming back to the depot' after a failed attempt. The final resolution (RESCHEDULE) is logically consistent with the playbook's guidance for failed delivery attempts. The agent correctly identified that REROUTE_TO_LOCKER was not an option due to the locker being full. While the provided playbook snippet for the 'Second Attempt' is truncated, RESCHEDULE remains a supported intended resolution for failed delivery attempts, and the operational action correctly handles the interim state."
+        "rationale": "The exception classification is supported by the delivery event (failed second attempt). The operational_action (HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER) is appropriate as the playbook states that after a failed attempt, the package returns to the depot and that for a second attempt, the agent must be 'more proactive'. The final resolution (RESCHEDULE) is a logically compatible intended disposition for a failed delivery attempt where the address is valid but the customer was unavailable. No conditional future actions (like return-to-sender) were prematurely triggered."
       },
       "communication_agent": {
         "tone_label": "CASUAL",
-        "communication_message": "Hi [CUSTOMER], we tried to deliver your package again, but we weren't able to reach you. We'll arrange another delivery attempt for you soon. Sorry for the inconvenience!"
+        "communication_message": "Hi [CUSTOMER], we tried delivering your package again but weren't able to reach you. We'll be arranging another delivery attempt once we've coordinated the next steps with you. We're sorry for the trouble."
       },
       "communication_critic": {
         "decision": "ACCEPT",
-        "rationale": "The message accurately reflects the RESCHEDULE resolution, uses the correct CASUAL tone for a STANDARD tier customer, and is appropriate for SMS. It explains the issue clearly without internal jargon and does not invent any unsupported dates or commitments."
+        "rationale": "The message accurately reflects the resolution (RESCHEDULE) and operational action (HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER). The tone is casual, which is correct for a STANDARD tier customer, and the channel (SMS) is appropriate. It clearly explains the issue without internal jargon and does not invent any unsupported dates or commitments."
       },
       "metrics": {
-        "latency_seconds": 21.07
+        "latency_seconds": 32.8
       },
       "trajectory": [
         "preprocessor: Normalised event; exception identified",
         "orchestrator: Routes to resolution agent",
-        "resolution_agent: Proposed reschedule · remove from route and hold",
+        "resolution_agent: Proposed reschedule · none",
+        "orchestrator: Routes to critic resolution",
+        "critic_resolution: Resolution Critic: REVISE",
+        "orchestrator: Routes to resolution agent",
+        "resolution_agent: Proposed reschedule · hold at depot and contact customer",
         "orchestrator: Routes to critic resolution",
         "critic_resolution: Resolution Critic: ACCEPT",
         "orchestrator: Routes to communication agent",
@@ -1431,124 +1550,184 @@
         {
           "index": 1,
           "node": "preprocessor",
-          "start_offset_seconds": 0.003,
-          "duration_seconds": 0.041,
+          "start_offset_seconds": 0.002,
+          "duration_seconds": 0.033,
           "summary": "Normalised event; exception identified"
         },
         {
           "index": 2,
           "node": "orchestrator",
-          "start_offset_seconds": 0.045,
+          "start_offset_seconds": 0.036,
           "duration_seconds": 0.002,
           "summary": "Routes to resolution agent"
         },
         {
           "index": 3,
           "node": "resolution_agent",
-          "start_offset_seconds": 0.049,
-          "duration_seconds": 7.005,
+          "start_offset_seconds": 0.04,
+          "duration_seconds": 6.432,
           "proposal": {
             "is_exception": "YES",
             "resolution": "RESCHEDULE",
-            "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
-            "rationale": "The delivery event is a failed delivery attempt (status: ATTEMPTED) because the customer was not available at the address. According to the playbook (Page 2, Section 1), this is a routine failed delivery attempt. Since this is the second attempt for a Standard tier customer, the playbook indicates a need to be proactive. While the playbook does not explicitly name the specific action for the second attempt in the provided snippet, the standard procedure for failed attempts is to schedule a redelivery. Rerouting to a locker is not possible because the only available locker (LOC-003) is explicitly marked as 'eligible: false' due to being 'FULL'. Therefore, RESCHEDULE is the most appropriate resolution to attempt delivery again."
+            "operational_action": "NONE",
+            "rationale": "The delivery event is a failed second attempt because the customer was not home (neighbor reported they work late). According to the playbook for a second failed attempt, the process becomes more proactive. Since the customer is a Standard tier and this is the second attempt, the appropriate resolution is to reschedule the delivery. No locker rerouting is possible as the only available locker (LOC-003) is marked as 'FULL' and 'eligible: false'."
           },
-          "summary": "Proposed reschedule · remove from route and hold"
+          "summary": "Proposed reschedule · none"
         },
         {
           "index": 4,
           "node": "orchestrator",
-          "start_offset_seconds": 7.057,
-          "duration_seconds": 0.004,
+          "start_offset_seconds": 6.474,
+          "duration_seconds": 0.005,
           "summary": "Routes to critic resolution"
         },
         {
           "index": 5,
           "node": "critic_resolution",
-          "start_offset_seconds": 7.063,
-          "duration_seconds": 3.552,
+          "start_offset_seconds": 6.481,
+          "duration_seconds": 9.025,
           "review": {
-            "decision": "ACCEPT",
-            "rationale": "The exception classification is supported by the delivery event (failed attempt). The operational_action (REMOVE_FROM_ROUTE_AND_HOLD) is appropriate as the playbook states the package is 'coming back to the depot' after a failed attempt. The final resolution (RESCHEDULE) is logically consistent with the playbook's guidance for failed delivery attempts. The agent correctly identified that REROUTE_TO_LOCKER was not an option due to the locker being full. While the provided playbook snippet for the 'Second Attempt' is truncated, RESCHEDULE remains a supported intended resolution for failed delivery attempts, and the operational action correctly handles the interim state."
+            "decision": "REVISE",
+            "rationale": "The Resolution Agent failed to identify the required operational action for a failed delivery attempt. According to the playbook [Page 2], when a delivery attempt fails, 'the package is coming back to the depot.' Therefore, the operational_action cannot be 'NONE'; it must reflect that the shipment is being returned to the depot before it can be rescheduled. The agent correctly identified the resolution as RESCHEDULE, but missed the immediate handling requirement."
           },
           "reviewed_proposal": {
             "is_exception": "YES",
             "resolution": "RESCHEDULE",
-            "operational_action": "REMOVE_FROM_ROUTE_AND_HOLD",
-            "rationale": "The delivery event is a failed delivery attempt (status: ATTEMPTED) because the customer was not available at the address. According to the playbook (Page 2, Section 1), this is a routine failed delivery attempt. Since this is the second attempt for a Standard tier customer, the playbook indicates a need to be proactive. While the playbook does not explicitly name the specific action for the second attempt in the provided snippet, the standard procedure for failed attempts is to schedule a redelivery. Rerouting to a locker is not possible because the only available locker (LOC-003) is explicitly marked as 'eligible: false' due to being 'FULL'. Therefore, RESCHEDULE is the most appropriate resolution to attempt delivery again."
+            "operational_action": "NONE",
+            "rationale": "The delivery event is a failed second attempt because the customer was not home (neighbor reported they work late). According to the playbook for a second failed attempt, the process becomes more proactive. Since the customer is a Standard tier and this is the second attempt, the appropriate resolution is to reschedule the delivery. No locker rerouting is possible as the only available locker (LOC-003) is marked as 'FULL' and 'eligible: false'."
           },
-          "summary": "Resolution Critic: ACCEPT"
+          "summary": "Resolution Critic: REVISE"
         },
         {
           "index": 6,
           "node": "orchestrator",
-          "start_offset_seconds": 10.617,
-          "duration_seconds": 0.006,
-          "summary": "Routes to communication agent"
+          "start_offset_seconds": 15.507,
+          "duration_seconds": 0.003,
+          "summary": "Routes to resolution agent"
         },
         {
           "index": 7,
-          "node": "communication_agent",
-          "start_offset_seconds": 10.629,
-          "duration_seconds": 1.744,
-          "draft": {
-            "tone_label": "CASUAL",
-            "communication_message": "Hi [CUSTOMER], we tried to deliver your package again, but we weren't able to reach you. We'll arrange another delivery attempt for you soon. Sorry for the inconvenience!"
+          "node": "resolution_agent",
+          "start_offset_seconds": 15.512,
+          "duration_seconds": 3.603,
+          "proposal": {
+            "is_exception": "YES",
+            "resolution": "RESCHEDULE",
+            "operational_action": "HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER",
+            "rationale": "The delivery event is a failed second attempt because the customer was not home. According to the playbook [Page 2], after a failed attempt, the package must be returned to the depot. Since this is the second attempt for a Standard tier customer, the playbook indicates a need to be more proactive; therefore, the package is held at the depot while the customer is contacted to coordinate the next steps. The final resolution is RESCHEDULE to attempt delivery again."
           },
-          "summary": "Prepared an unsent customer draft"
+          "summary": "Proposed reschedule · hold at depot and contact customer"
         },
         {
           "index": 8,
           "node": "orchestrator",
-          "start_offset_seconds": 12.375,
-          "duration_seconds": 0.005,
-          "summary": "Routes to critic communication"
+          "start_offset_seconds": 19.118,
+          "duration_seconds": 0.004,
+          "summary": "Routes to critic resolution"
         },
         {
           "index": 9,
-          "node": "critic_communication",
-          "start_offset_seconds": 12.383,
-          "duration_seconds": 8.673,
+          "node": "critic_resolution",
+          "start_offset_seconds": 19.124,
+          "duration_seconds": 6.439,
           "review": {
             "decision": "ACCEPT",
-            "rationale": "The message accurately reflects the RESCHEDULE resolution, uses the correct CASUAL tone for a STANDARD tier customer, and is appropriate for SMS. It explains the issue clearly without internal jargon and does not invent any unsupported dates or commitments."
+            "rationale": "The exception classification is supported by the delivery event (failed second attempt). The operational_action (HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER) is appropriate as the playbook states that after a failed attempt, the package returns to the depot and that for a second attempt, the agent must be 'more proactive'. The final resolution (RESCHEDULE) is a logically compatible intended disposition for a failed delivery attempt where the address is valid but the customer was unavailable. No conditional future actions (like return-to-sender) were prematurely triggered."
           },
-          "reviewed_draft": {
-            "tone_label": "CASUAL",
-            "communication_message": "Hi [CUSTOMER], we tried to deliver your package again, but we weren't able to reach you. We'll arrange another delivery attempt for you soon. Sorry for the inconvenience!"
+          "reviewed_proposal": {
+            "is_exception": "YES",
+            "resolution": "RESCHEDULE",
+            "operational_action": "HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER",
+            "rationale": "The delivery event is a failed second attempt because the customer was not home. According to the playbook [Page 2], after a failed attempt, the package must be returned to the depot. Since this is the second attempt for a Standard tier customer, the playbook indicates a need to be more proactive; therefore, the package is held at the depot while the customer is contacted to coordinate the next steps. The final resolution is RESCHEDULE to attempt delivery again."
           },
-          "summary": "Communication Critic: ACCEPT"
+          "summary": "Resolution Critic: ACCEPT"
         },
         {
           "index": 10,
           "node": "orchestrator",
-          "start_offset_seconds": 21.058,
-          "duration_seconds": 0.003,
-          "summary": "Routes to finalize"
+          "start_offset_seconds": 25.564,
+          "duration_seconds": 0.002,
+          "summary": "Routes to communication agent"
         },
         {
           "index": 11,
-          "node": "finalize",
-          "start_offset_seconds": 21.064,
+          "node": "communication_agent",
+          "start_offset_seconds": 25.569,
+          "duration_seconds": 3.822,
+          "draft": {
+            "tone_label": "CASUAL",
+            "communication_message": "Hi [CUSTOMER], we tried delivering your package again but weren't able to reach you. We'll be arranging another delivery attempt once we've coordinated the next steps with you. We're sorry for the trouble."
+          },
+          "summary": "Prepared an unsent customer draft"
+        },
+        {
+          "index": 12,
+          "node": "orchestrator",
+          "start_offset_seconds": 29.394,
           "duration_seconds": 0.004,
+          "summary": "Routes to critic communication"
+        },
+        {
+          "index": 13,
+          "node": "critic_communication",
+          "start_offset_seconds": 29.401,
+          "duration_seconds": 3.385,
+          "review": {
+            "decision": "ACCEPT",
+            "rationale": "The message accurately reflects the resolution (RESCHEDULE) and operational action (HOLD_AT_DEPOT_AND_CONTACT_CUSTOMER). The tone is casual, which is correct for a STANDARD tier customer, and the channel (SMS) is appropriate. It clearly explains the issue without internal jargon and does not invent any unsupported dates or commitments."
+          },
+          "reviewed_draft": {
+            "tone_label": "CASUAL",
+            "communication_message": "Hi [CUSTOMER], we tried delivering your package again but weren't able to reach you. We'll be arranging another delivery attempt once we've coordinated the next steps with you. We're sorry for the trouble."
+          },
+          "summary": "Communication Critic: ACCEPT"
+        },
+        {
+          "index": 14,
+          "node": "orchestrator",
+          "start_offset_seconds": 32.788,
+          "duration_seconds": 0.004,
+          "summary": "Routes to finalize"
+        },
+        {
+          "index": 15,
+          "node": "finalize",
+          "start_offset_seconds": 32.794,
+          "duration_seconds": 0.003,
           "summary": "Recorded final decision · RESCHEDULE"
         }
       ],
       "trace_summary": {
-        "spans_recorded": 47,
+        "spans_recorded": 63,
         "root_completed": true,
+        "recovered_error_spans": 0,
         "source": "LangSmith per-case trace export",
         "captured_at": "2026-10-17"
       },
       "tool_calls": [
-        "lookup_customer_profile · 0.003s (recorded tool span; arguments hidden)",
+        "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
         "lookup_customer_profile · 0.001s (recorded tool span; arguments hidden)",
         "check_locker_availability · 0.001s (recorded tool span; arguments hidden)",
-        "search_playbook · 0.028s (recorded tool span; arguments hidden)",
+        "search_playbook · 0.023s (recorded tool span; arguments hidden)",
         "check_escalation_rules · 0.001s (recorded tool span; arguments hidden)"
       ],
       "playbook_references": [],
-      "citation_pages": []
+      "citation_pages": [],
+      "benchmark_assessment": {
+        "checks": {
+          "Task": "PASS",
+          "Exception": "PASS",
+          "Resolution": "PASS",
+          "Escalation": "PASS",
+          "Tone": "PASS",
+          "Tools": "PASS"
+        },
+        "coherence_score": 5,
+        "judge_scale": 5,
+        "revisions": 1,
+        "notebook_latency_seconds": 32.79,
+        "source": "Executed end-to-end notebook: individual test assessment"
+      }
     },
     {
       "id": "SHP-009",
@@ -1595,18 +1774,18 @@
       },
       "resolution_critic": {
         "decision": "ACCEPT",
-        "rationale": "The exception classification is supported by the delivery event (leaking liquid, strong odor). The final resolution (REPLACE) is explicitly required by the playbook for severe damage (Page 4). The operational_action (REMOVE_FROM_ROUTE_AND_HOLD) is the correct interpretation of the playbook's instruction to 'Do not deliver' and 'Pull the package' due to severe damage. The decision is logically coherent and follows the provided guidance."
+        "rationale": "The exception classification is supported by the delivery event (leaking liquid and odor). The final resolution (REPLACE) is explicitly required by the playbook for severe damage (Page 4) and perishable items that are compromised (Page 6). The operational_action (REMOVE_FROM_ROUTE_AND_HOLD) is the correct immediate handling step for a package that must not be delivered under any circumstances. The decision is logically coherent and adheres to all provided constraints."
       },
       "communication_agent": {
         "tone_label": "FORMAL",
-        "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that your recent delivery was reported as damaged. It appears the package is leaking and has a strong odor, and as a result, we have intercepted the shipment to prevent any further issues.\n\nPlease accept our sincere apologies for this inconvenience. We are currently arranging for a replacement order to be sent to you.\n\nThank you for your patience."
+        "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that an issue was identified with your recent delivery. Your package was found to be damaged and leaking, and as the contents are perishable, we have taken immediate action to prevent any further issues.\n\nPlease accept our sincere apologies for this inconvenience. We are currently arranging for a replacement to be sent to you.\n\nThank you for your patience."
       },
       "communication_critic": {
         "decision": "ACCEPT",
-        "rationale": "The message accurately reflects the approved resolution (REPLACE), uses the correct formal tone for a PREMIUM customer, and clearly explains the issue without using internal terminology. It does not invent any unsupported dates or commitments."
+        "rationale": "The message accurately reflects the approved resolution (REPLACE), maintains a formal tone appropriate for a PREMIUM customer, and clearly explains the issue without using internal terminology. It does not invent any unsupported dates or commitments."
       },
       "metrics": {
-        "latency_seconds": 12.013
+        "latency_seconds": 20.435
       },
       "trajectory": [
         "preprocessor: Normalised event; exception identified",
@@ -1625,22 +1804,22 @@
         {
           "index": 1,
           "node": "preprocessor",
-          "start_offset_seconds": 0.003,
-          "duration_seconds": 0.038,
+          "start_offset_seconds": 0.002,
+          "duration_seconds": 0.035,
           "summary": "Normalised event; exception identified"
         },
         {
           "index": 2,
           "node": "orchestrator",
-          "start_offset_seconds": 0.042,
-          "duration_seconds": 0.004,
+          "start_offset_seconds": 0.038,
+          "duration_seconds": 0.002,
           "summary": "Routes to resolution agent"
         },
         {
           "index": 3,
           "node": "resolution_agent",
-          "start_offset_seconds": 0.048,
-          "duration_seconds": 4.826,
+          "start_offset_seconds": 0.041,
+          "duration_seconds": 5.996,
           "proposal": {
             "is_exception": "YES",
             "resolution": "REPLACE",
@@ -1652,18 +1831,18 @@
         {
           "index": 4,
           "node": "orchestrator",
-          "start_offset_seconds": 4.877,
-          "duration_seconds": 0.005,
+          "start_offset_seconds": 6.039,
+          "duration_seconds": 0.004,
           "summary": "Routes to critic resolution"
         },
         {
           "index": 5,
           "node": "critic_resolution",
-          "start_offset_seconds": 4.883,
-          "duration_seconds": 3.463,
+          "start_offset_seconds": 6.045,
+          "duration_seconds": 6.536,
           "review": {
             "decision": "ACCEPT",
-            "rationale": "The exception classification is supported by the delivery event (leaking liquid, strong odor). The final resolution (REPLACE) is explicitly required by the playbook for severe damage (Page 4). The operational_action (REMOVE_FROM_ROUTE_AND_HOLD) is the correct interpretation of the playbook's instruction to 'Do not deliver' and 'Pull the package' due to severe damage. The decision is logically coherent and follows the provided guidance."
+            "rationale": "The exception classification is supported by the delivery event (leaking liquid and odor). The final resolution (REPLACE) is explicitly required by the playbook for severe damage (Page 4) and perishable items that are compromised (Page 6). The operational_action (REMOVE_FROM_ROUTE_AND_HOLD) is the correct immediate handling step for a package that must not be delivered under any circumstances. The decision is logically coherent and adheres to all provided constraints."
           },
           "reviewed_proposal": {
             "is_exception": "YES",
@@ -1676,54 +1855,54 @@
         {
           "index": 6,
           "node": "orchestrator",
-          "start_offset_seconds": 8.347,
-          "duration_seconds": 0.003,
+          "start_offset_seconds": 12.583,
+          "duration_seconds": 0.004,
           "summary": "Routes to communication agent"
         },
         {
           "index": 7,
           "node": "communication_agent",
-          "start_offset_seconds": 8.355,
-          "duration_seconds": 1.707,
+          "start_offset_seconds": 12.59,
+          "duration_seconds": 1.951,
           "draft": {
             "tone_label": "FORMAL",
-            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that your recent delivery was reported as damaged. It appears the package is leaking and has a strong odor, and as a result, we have intercepted the shipment to prevent any further issues.\n\nPlease accept our sincere apologies for this inconvenience. We are currently arranging for a replacement order to be sent to you.\n\nThank you for your patience."
+            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that an issue was identified with your recent delivery. Your package was found to be damaged and leaking, and as the contents are perishable, we have taken immediate action to prevent any further issues.\n\nPlease accept our sincere apologies for this inconvenience. We are currently arranging for a replacement to be sent to you.\n\nThank you for your patience."
           },
           "summary": "Prepared an unsent customer draft"
         },
         {
           "index": 8,
           "node": "orchestrator",
-          "start_offset_seconds": 10.064,
-          "duration_seconds": 0.003,
+          "start_offset_seconds": 14.542,
+          "duration_seconds": 0.002,
           "summary": "Routes to critic communication"
         },
         {
           "index": 9,
           "node": "critic_communication",
-          "start_offset_seconds": 10.07,
-          "duration_seconds": 1.922,
+          "start_offset_seconds": 14.547,
+          "duration_seconds": 5.871,
           "review": {
             "decision": "ACCEPT",
-            "rationale": "The message accurately reflects the approved resolution (REPLACE), uses the correct formal tone for a PREMIUM customer, and clearly explains the issue without using internal terminology. It does not invent any unsupported dates or commitments."
+            "rationale": "The message accurately reflects the approved resolution (REPLACE), maintains a formal tone appropriate for a PREMIUM customer, and clearly explains the issue without using internal terminology. It does not invent any unsupported dates or commitments."
           },
           "reviewed_draft": {
             "tone_label": "FORMAL",
-            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that your recent delivery was reported as damaged. It appears the package is leaking and has a strong odor, and as a result, we have intercepted the shipment to prevent any further issues.\n\nPlease accept our sincere apologies for this inconvenience. We are currently arranging for a replacement order to be sent to you.\n\nThank you for your patience."
+            "communication_message": "Dear [CUSTOMER],\n\nWe are writing to inform you that an issue was identified with your recent delivery. Your package was found to be damaged and leaking, and as the contents are perishable, we have taken immediate action to prevent any further issues.\n\nPlease accept our sincere apologies for this inconvenience. We are currently arranging for a replacement to be sent to you.\n\nThank you for your patience."
           },
           "summary": "Communication Critic: ACCEPT"
         },
         {
           "index": 10,
           "node": "orchestrator",
-          "start_offset_seconds": 11.994,
+          "start_offset_seconds": 20.42,
           "duration_seconds": 0.006,
           "summary": "Routes to finalize"
         },
         {
           "index": 11,
           "node": "finalize",
-          "start_offset_seconds": 12.006,
+          "start_offset_seconds": 20.428,
           "duration_seconds": 0.005,
           "summary": "Recorded final decision · REPLACE"
         }
@@ -1731,18 +1910,34 @@
       "trace_summary": {
         "spans_recorded": 47,
         "root_completed": true,
+        "recovered_error_spans": 0,
         "source": "LangSmith per-case trace export",
         "captured_at": "2026-10-17"
       },
       "tool_calls": [
-        "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
-        "lookup_customer_profile · 0.002s (recorded tool span; arguments hidden)",
-        "check_locker_availability · 0.002s (recorded tool span; arguments hidden)",
-        "search_playbook · 0.026s (recorded tool span; arguments hidden)",
+        "lookup_customer_profile · 0.003s (recorded tool span; arguments hidden)",
+        "lookup_customer_profile · 0.001s (recorded tool span; arguments hidden)",
+        "check_locker_availability · 0.001s (recorded tool span; arguments hidden)",
+        "search_playbook · 0.023s (recorded tool span; arguments hidden)",
         "check_escalation_rules · 0.001s (recorded tool span; arguments hidden)"
       ],
       "playbook_references": [],
-      "citation_pages": []
+      "citation_pages": [],
+      "benchmark_assessment": {
+        "checks": {
+          "Task": "PASS",
+          "Exception": "PASS",
+          "Resolution": "PASS",
+          "Escalation": "PASS",
+          "Tone": "PASS",
+          "Tools": "PASS"
+        },
+        "coherence_score": 5,
+        "judge_scale": 5,
+        "revisions": 0,
+        "notebook_latency_seconds": 20.43,
+        "source": "Executed end-to-end notebook: individual test assessment"
+      }
     },
     {
       "id": "SHP-010",
@@ -1788,7 +1983,7 @@
       "communication_agent": {},
       "communication_critic": {},
       "metrics": {
-        "latency_seconds": 0.018
+        "latency_seconds": 0.041
       },
       "trajectory": [
         "preprocessor: Normalised event; routine event",
@@ -1799,34 +1994,50 @@
         {
           "index": 1,
           "node": "preprocessor",
-          "start_offset_seconds": 0.003,
-          "duration_seconds": 0.004,
+          "start_offset_seconds": 0.007,
+          "duration_seconds": 0.009,
           "summary": "Normalised event; routine event"
         },
         {
           "index": 2,
           "node": "orchestrator",
-          "start_offset_seconds": 0.009,
-          "duration_seconds": 0.003,
+          "start_offset_seconds": 0.024,
+          "duration_seconds": 0.008,
           "summary": "Routes to finalize"
         },
         {
           "index": 3,
           "node": "finalize",
-          "start_offset_seconds": 0.014,
-          "duration_seconds": 0.002,
+          "start_offset_seconds": 0.034,
+          "duration_seconds": 0.004,
           "summary": "Recorded final decision · N/A"
         }
       ],
       "trace_summary": {
         "spans_recorded": 10,
         "root_completed": true,
+        "recovered_error_spans": 0,
         "source": "LangSmith per-case trace export",
         "captured_at": "2026-10-17"
       },
       "tool_calls": [],
       "playbook_references": [],
-      "citation_pages": []
+      "citation_pages": [],
+      "benchmark_assessment": {
+        "checks": {
+          "Task": "PASS",
+          "Exception": "PASS",
+          "Resolution": "PASS",
+          "Escalation": "N/A",
+          "Tone": "N/A",
+          "Tools": "PASS"
+        },
+        "coherence_score": 5,
+        "judge_scale": 5,
+        "revisions": 0,
+        "notebook_latency_seconds": 0.02,
+        "source": "Executed end-to-end notebook: individual test assessment"
+      }
     }
   ]
 }

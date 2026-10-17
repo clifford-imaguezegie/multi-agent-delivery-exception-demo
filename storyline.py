@@ -5,6 +5,8 @@ LLM/tool calls, and a separate full trajectory preserves the original event orde
 """
 from __future__ import annotations
 
+from oversight_status import oversight_status
+
 
 def story_scenes(case: dict) -> list[dict]:
     shipment = case["id"]
@@ -12,7 +14,8 @@ def story_scenes(case: dict) -> list[dict]:
     customer = case["customer"]
     final = case["final_action"]
     trajectory = case["trajectory"]
-    routine = final["is_exception"] != "YES"
+    oversight = oversight_status(case)
+    routine = oversight["routine"]
     def lines(*prefixes):
         return [line for line in trajectory if any(line.startswith(p) for p in prefixes)]
 
@@ -38,7 +41,7 @@ def story_scenes(case: dict) -> list[dict]:
         res = case["resolution_agent"]
         rv = final["revision_count"]
         cri = case["resolution_critic"]
-        trigger = case["escalation_signals"].get("triggers", [])
+        trigger = oversight["reasons"]
         result += [{
             "label": "03 / RECOMMENDATION", "title": "The Resolution Agent proposes a next action",
             "summary": f"The recorded recommendation is {final['resolution'].replace('_',' ').lower()}. The operational handling instruction is {res.get('operational_action') or 'not specified in the extracted record'}.",
@@ -50,10 +53,9 @@ def story_scenes(case: dict) -> list[dict]:
                         f"The recorded Resolution Critic decision is {cri.get('decision','not recorded')}; no resolution revision loop was required."),
             "evidence": lines("critic_resolution:", "orchestrator: REVISE", "orchestrator: Max resolution revision") + ([f"Final Critic assessment: {cri.get('decision','not recorded')}"] if cri else [])
         },{
-            "label": "05 / SUPERVISION", "title": "Apply escalation and operating constraints",
-            "summary": ("The final recorded decision routes the case for human review; no real shipment operation is executed by this replay." if final["escalated"] else
-                        "No final supervisor escalation is required for this benchmark case."),
-            "evidence": (trigger or ["No rule-engine escalation trigger recorded"]) + lines("orchestrator: Forced escalation", "orchestrator: Discretionary escalation")
+            "label": "05 / ESCALATION CHECK", "title": oversight["headline"],
+            "summary": oversight["explanation"] + (" The recorded decision differs from the benchmark's expected escalation label." if oversight["benchmark_disagrees"] else ""),
+            "evidence": (trigger or ["No final supervisor escalation requested in the recorded execution."]) + lines("orchestrator: Forced escalation", "orchestrator: Discretionary escalation")
         },{
             "label": "06 / CUSTOMER RESPONSE", "title": "Draft and review the customer communication",
             "summary": (f"A {case['communication_agent'].get('tone_label', 'selected').lower()} message is drafted, then checked by the independent Communication Critic. The replay never sends it."),
@@ -62,7 +64,7 @@ def story_scenes(case: dict) -> list[dict]:
 
     result.append({
         "label": f"{len(result)+1:02d} / FINAL RECORD", "title": "An auditable decision is captured",
-        "summary": f"The saved final action is {final['resolution'].replace('_',' ')}; escalation {'required' if final['escalated'] else 'not required'}. Current LangSmith root-span duration was {case['metrics']['latency_seconds']:.2f} seconds.",
+        "summary": f"Recorded outcome: {final['resolution'].replace('_',' ')}; supervisor escalation {'requested' if final['escalated'] else 'not requested'}. No supervisor approval or customer action was executed. LangSmith root-span duration: {case['metrics']['latency_seconds']:.2f} seconds.",
         "evidence": lines("finalize:")
     })
     return result

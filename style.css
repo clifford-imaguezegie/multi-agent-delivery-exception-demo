@@ -86,4 +86,23 @@ hr {border-color:var(--line);}
 .authority-note strong {font-size:.87rem;}
 .authority-note p {margin:6px 0 0;font-size:.81rem;line-height:1.5;}
 
+/* V2.3.2: footer styles must stay INSIDE the style element (not visible as page text). */
+.footer-note {
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+  gap:18px 30px;margin-top:34px;padding:20px 0 8px;
+  border-top:1px solid var(--line);
+}
+.footer-description {max-width:790px;font-size:.79rem;color:var(--muted);line-height:1.55;}
+.footer-heading {font-weight:800;letter-spacing:.09em;font-size:.73rem;color:var(--ink);margin-bottom:6px;}
+.footer-description p {margin:0;font-size:.78rem;line-height:1.55;}
+.release-tag {
+  display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  background:#FAEEE7;border:1px solid #E7CDBE;border-radius:12px;
+  padding:11px 15px;min-width:200px;color:#4D2C4B;
+}
+.release-main {display:flex;gap:10px;align-items:baseline;white-space:nowrap;}
+.release-main span {font-size:.67rem;letter-spacing:.11em;font-weight:800;color:#9E574B;}
+.release-main strong {font-size:1rem;color:#321D3C;}
+.release-trace {font-size:.7rem;color:#796674;letter-spacing:.01em;}
+@media(max-width:700px){.footer-note{grid-template-columns:1fr;gap:13px}.release-tag{justify-self:start;}}
 </style>

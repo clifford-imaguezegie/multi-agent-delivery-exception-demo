@@ -34,7 +34,7 @@ def decision_package(case: dict) -> dict:
             "Customer message drafted (not sent)" if message_drafted else
             "No customer message captured"
         )
-        supervisor = ("Supervisor review / approval required" if escalated else "No final supervisor escalation")
+        supervisor = ("Supervisor review requested (not performed in replay)" if escalated else "No supervisor escalation requested")
         operational = label(op) if op else "Not recorded"
     return {
         "is_routine": routine,
